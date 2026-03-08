@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PD Blocker</title>
+  <style>
+    body { width: 280px; padding: 12px; font-family: sans-serif; margin: 0; }
+    h2 { font-size: 14px; margin: 0 0 8px 0; }
+    button { width: 100%; padding: 10px; cursor: pointer; font-size: 14px; }
+    #status { font-size: 12px; color: #666; margin-top: 8px; }
+    .section-title { margin-top: 12px; margin-bottom: 4px; font-size: 12px; color: #333; }
+    #blocked-list { max-height: 160px; overflow-y: auto; border-top: 1px solid #eee; margin-top: 8px; padding-top: 4px; }
+    .blocked-item { display: flex; align-items: center; justify-content: space-between; font-size: 12px; padding: 2px 0; }
+    .blocked-host { flex: 1; margin-right: 6px; word-break: break-all; }
+    .btn-small { width: auto; padding: 2px 6px; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <h2>PD Blocker</h2>
+  <button id="block-btn">このサイトをブロック</button>
+  <p id="status"></p>
+  <button id="force-block-btn">今すぐ再ブロック（このタブ）</button>
+
+  <p class="section-title">ブロック中のサイト</p>
+  <div id="blocked-list"></div>
+
+  <script src="block-core.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

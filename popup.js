@@ -1,0 +1,101 @@
+(function () {
+  var blockBtn = document.getElementById('block-btn');
+  var status = document.getElementById('status');
+  var forceBlockBtn = document.getElementById('force-block-btn');
+  var blockedListEl = document.getElementById('blocked-list');
+
+  function renderBlockedList(hosts) {
+    blockedListEl.innerHTML = '';
+    if (!hosts || hosts.length === 0) {
+      var empty = document.createElement('p');
+      empty.textContent = 'なし';
+      empty.style.fontSize = '12px';
+      empty.style.color = '#666';
+      blockedListEl.appendChild(empty);
+      return;
+    }
+
+    hosts.forEach(function (host) {
+      var row = document.createElement('div');
+      row.className = 'blocked-item';
+
+      var span = document.createElement('span');
+      span.className = 'blocked-host';
+      span.textContent = host;
+
+      var btn = document.createElement('button');
+      btn.textContent = '削除';
+      btn.className = 'btn-small';
+      btn.addEventListener('click', function () {
+        PDBlockCore.getBlockedHosts(function (current) {
+          var next = (current || []).filter(function (h) { return h !== host; });
+          PDBlockCore.setBlockedHosts(next, function () {
+            renderBlockedList(next);
+          });
+        });
+      });
+
+      row.appendChild(span);
+      row.appendChild(btn);
+      blockedListEl.appendChild(row);
+    });
+  }
+
+  function loadBlockedList() {
+    PDBlockCore.getBlockedHosts(function (hosts) {
+      renderBlockedList(hosts || []);
+    });
+  }
+
+  blockBtn.addEventListener('click', function () {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      var tab = tabs[0];
+      if (!tab || !tab.url) {
+        status.textContent = 'URLを取得できません';
+        return;
+      }
+      try {
+        var url = new URL(tab.url);
+        var hostname = url.hostname;
+        if (!hostname || hostname === '') {
+          status.textContent = 'このページはブロックできません';
+          return;
+        }
+        PDBlockCore.addBlockedHost(hostname, function (added) {
+          if (added) {
+            status.textContent = 'ブロックしました: ' + hostname;
+          } else {
+            status.textContent = 'すでにブロック済み: ' + hostname;
+          }
+          loadBlockedList();
+        });
+      } catch (e) {
+        status.textContent = 'このページはブロックできません';
+      }
+    });
+  });
+
+  forceBlockBtn.addEventListener('click', function () {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      var tab = tabs[0];
+      if (!tab || !tab.url) {
+        status.textContent = 'タブ情報を取得できません';
+        return;
+      }
+      var hostname = '';
+      try {
+        hostname = new URL(tab.url).hostname;
+      } catch (e) {}
+
+      chrome.runtime.sendMessage({
+        type: 'FORCE_BLOCK',
+        tabId: tab.id,
+        url: tab.url,
+        hostname: hostname
+      });
+      status.textContent = '再ブロックを実行しました';
+    });
+  });
+
+  loadBlockedList();
+})();

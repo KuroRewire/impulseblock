@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ブロック中 - PD Blocker</title>
+  <style>
+    body { font-family: sans-serif; max-width: 1280px; margin: 16px auto 24px; padding: 0 24px; font-size: 16px; }
+    h1 { font-size: 42px; font-weight: 700; margin: 0 0 12px 0; text-align: center; }
+    .current-info { text-align: center; margin-bottom: 20px; }
+    .current-host-text { font-size: 20px; margin: 0 0 4px 0; }
+    .current-question { font-size: 18px; margin: 0; }
+    .section-title { margin-top: 16px; margin-bottom: 4px; font-size: 15px; color: #333; }
+    .main-grid { display: grid; grid-template-columns: 1fr 1.1fr 1fr; gap: 24px; align-items: flex-start; }
+    .col-left { min-width: 0; }
+    .col-center { min-width: 0; }
+    .col-right { min-width: 0; }
+    .card { background: #fff; border-radius: 8px; padding: 12px 14px; margin-top: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .card-title { margin: 0 0 6px 0; font-size: 15px; font-weight: bold; color: #333; }
+    .buttons { display: flex; gap: 12px; margin: 12px 0 4px 0; justify-content: center; }
+    .buttons button { padding: 0 20px; cursor: pointer; font-size: 18px; min-width: 140px; height: 48px; }
+    .stats { font-size: 15px; color: #333; margin: 12px 0; }
+    .history { font-size: 12px; margin: 8px 0 4px 0; }
+    .history-title { margin: 0 0 4px 0; font-size: 14px; color: #333; }
+    #history-list { margin-top: 2px; }
+    .history-row { display: flex; align-items: center; margin: 2px 0; }
+    .history-date { width: 48px; color: #555; }
+    .history-bar { flex: 1; margin: 0 6px; background: #eee; border-radius: 4px; overflow: hidden; height: 8px; }
+    .history-bar-fill { height: 100%; background: #4caf50; }
+    .history-count { width: 24px; text-align: right; }
+    .cheer { text-align: center; margin: 8px 0 4px 0; }
+    .cheer img { max-width: 400px; width: 100%; border-radius: 10px; display: inline-block; }
+    .yes { background: #ccc; }
+    .no { background: #333; color: #fff; }
+    #blocked-list { font-size: 13px; margin-top: 4px; border-top: 1px solid #eee; padding-top: 4px; max-height: 200px; overflow-y: auto; }
+    .blocked-item { display: flex; align-items: center; justify-content: space-between; padding: 2px 0; }
+    .blocked-host { flex: 1; margin-right: 6px; word-break: break-all; }
+    .btn-small { padding: 2px 6px; font-size: 11px; }
+    .incognito { margin-top: 32px; padding: 16px; background: #f5f5f5; border-radius: 8px; font-size: 14px; }
+    .incognito h2 { font-size: 14px; margin: 0 0 8px 0; }
+    .incognito ol { margin: 0; padding-left: 20px; }
+    .incognito a { color: #06c; }
+    .history-row:first-child .history-date { font-weight: bold; }
+
+    @media (max-width: 900px) {
+      body { padding: 0 12px; }
+      .main-grid { grid-template-columns: 1fr; }
+      .buttons { flex-wrap: wrap; }
+      .buttons button { flex: 1; min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <h1>このサイトはブロックされています</h1>
+  <div class="current-info">
+    <p id="current-host" class="current-host-text">現在ブロック中: —</p>
+    <p class="current-question">本当に開きますか？</p>
+  </div>
+
+  <div class="main-grid">
+    <div class="col-left">
+      <div class="card">
+        <p class="card-title">ブロック中のサイト</p>
+        <div id="blocked-list"></div>
+      </div>
+    </div>
+
+    <div class="col-center">
+      <div class="card">
+        <div class="cheer"><img src="assets/taero.png" alt="耐えろ" /></div>
+        <div class="buttons">
+          <button type="button" class="yes" id="btn-yes">開く（5分だけ許可）</button>
+          <button type="button" class="no" id="btn-no">やめる</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="card">
+        <p class="card-title">衝動ログ</p>
+        <div class="stats">
+          <p id="today-count">今日のYes回数: —</p>
+          <p id="last-opened">最終記録時刻: —</p>
+        </div>
+        <div class="history">
+          <p class="history-title">衝動ログ（7日）</p>
+          <div id="history-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="incognito">
+    <h2>シークレットモードでも使うには</h2>
+    <p>シークレットウィンドウでもブロックを有効にする手順：</p>
+    <ol>
+      <li>アドレスバーに <code>chrome://extensions</code> と入力して開く</li>
+      <li>「PD Blocker」の <strong>「シークレットモードで許可」</strong> をONにする</li>
+    </ol>
+    <p><a href="https://support.google.com/chrome/answer/95464" target="_blank" rel="noopener">Chrome シークレットモードのヘルプ（外部）</a></p>
+  </section>
+
+  <script src="block-core.js"></script>
+  <script src="blocked.js"></script>
+</body>
+</html>
