@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PD Blocker</title>
+  <title>PD Counter</title>
   <style>
     body { width: 280px; padding: 12px; font-family: sans-serif; margin: 0; }
     h2 { font-size: 14px; margin: 0 0 8px 0; }
@@ -17,15 +17,16 @@
   </style>
 </head>
 <body>
-  <h2>PD Blocker</h2>
-  <button id="block-btn">このサイトをブロック</button>
+  <h2 data-i18n="extName"></h2>
+  <button id="block-btn" data-i18n="popup_block_this_site"></button>
   <p id="status"></p>
-  <button id="force-block-btn">今すぐ再ブロック（このタブ）</button>
+  <button id="force-block-btn" data-i18n="popup_force_block_tab"></button>
 
-  <p class="section-title">ブロック中のサイト</p>
+  <p class="section-title" data-i18n="blocked_sites"></p>
   <div id="blocked-list"></div>
 
   <script src="block-core.js"></script>
+  <script src="popup-i18n.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

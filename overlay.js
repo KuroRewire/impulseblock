@@ -3,6 +3,10 @@
   var overlayId = 'pd-blocker-force-overlay';
   var adultBannerId = 'pd-blocker-adult-banner';
 
+  function t(key) {
+    return chrome.i18n.getMessage(key) || '';
+  }
+
   function createOverlay() {
     if (document.getElementById(overlayId)) return;
 
@@ -23,10 +27,10 @@
     container.style.gap = '6px';
 
     var label = document.createElement('span');
-    label.textContent = 'PD Blocker';
+    label.textContent = t('extName');
 
     var btn = document.createElement('button');
-    btn.textContent = '今すぐ再ブロック';
+    btn.textContent = t('overlay_force_block');
     btn.style.border = 'none';
     btn.style.cursor = 'pointer';
     btn.style.fontSize = '11px';
@@ -66,11 +70,11 @@
     container.style.maxWidth = '260px';
 
     var msg = document.createElement('div');
-    msg.textContent = 'アダルト疑いサイトです';
+    msg.textContent = t('adult_suspicious');
     msg.style.marginBottom = '4px';
 
     var btn = document.createElement('button');
-    btn.textContent = 'このサイトをブロック候補に追加';
+    btn.textContent = t('adult_add_candidate');
     btn.style.border = 'none';
     btn.style.cursor = 'pointer';
     btn.style.fontSize = '11px';
@@ -86,7 +90,7 @@
         type: 'ADULT_SUGGEST_BLOCK',
         hostname: hostname
       });
-      msg.textContent = 'ブロック候補に追加リクエストを送信しました';
+      msg.textContent = t('adult_request_sent');
     });
 
     container.appendChild(msg);
@@ -159,4 +163,3 @@
     init();
   }
 })();
-

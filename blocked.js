@@ -1,4 +1,17 @@
 (function () {
+  function t(key) {
+    return chrome.i18n.getMessage(key) || '';
+  }
+
+  var cheerImg = document.getElementById('cheer-image');
+  if (cheerImg) {
+    var lang = chrome.i18n.getUILanguage();
+    var isJa = lang.startsWith('ja');
+    cheerImg.src = isJa ? 'assets/taero_ja.png' : 'assets/taero_en.png';
+    var altMsg = chrome.i18n.getMessage('cheer_alt');
+    if (altMsg) cheerImg.setAttribute('alt', altMsg);
+  }
+
   var params = new URLSearchParams(location.search);
   var originalUrl = params.get('url');
   if (originalUrl) {
@@ -15,7 +28,8 @@
 
   var currentHostEl = document.getElementById('current-host');
   if (currentHostEl) {
-    currentHostEl.textContent = '現在ブロック中: ' + (currentHostname || '不明');
+    currentHostEl.textContent =
+      t('blocked_currently') + ' ' + (currentHostname || t('unknown_host'));
   }
 
   var blockedListEl = document.getElementById('blocked-list');
@@ -49,15 +63,31 @@
   function formatLastOpened(ms) {
     if (!ms) return '—';
     var d = new Date(ms);
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0');
+    return (
+      d.getFullYear() +
+      '-' +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(d.getDate()).padStart(2, '0') +
+      ' ' +
+      String(d.getHours()).padStart(2, '0') +
+      ':' +
+      String(d.getMinutes()).padStart(2, '0') +
+      ':' +
+      String(d.getSeconds()).padStart(2, '0')
+    );
   }
 
   function refreshStats(data) {
     var today = getTodayKey();
-    var count = (data && data.openCountByDate && data.openCountByDate[today]) ? data.openCountByDate[today] : 0;
-    var last = (data && data.lastOpenedAt) ? data.lastOpenedAt : 0;
-    document.getElementById('today-count').textContent = '今日のYes回数: ' + count;
-    document.getElementById('last-opened').textContent = '最終記録時刻: ' + formatLastOpened(last);
+    var count =
+      data && data.openCountByDate && data.openCountByDate[today]
+        ? data.openCountByDate[today]
+        : 0;
+    var last = data && data.lastOpenedAt ? data.lastOpenedAt : 0;
+    document.getElementById('today-count').textContent = t('today_count') + ' ' + count;
+    document.getElementById('last-opened').textContent =
+      t('last_recorded') + ' ' + formatLastOpened(last);
   }
 
   function loadAndShowStats() {
@@ -124,7 +154,7 @@
     blockedListEl.innerHTML = '';
     if (!hosts || hosts.length === 0) {
       var empty = document.createElement('p');
-      empty.textContent = 'なし';
+      empty.textContent = t('empty_list');
       empty.style.fontSize = '13px';
       empty.style.color = '#666';
       blockedListEl.appendChild(empty);
@@ -140,11 +170,13 @@
       span.textContent = host;
 
       var btn = document.createElement('button');
-      btn.textContent = '削除';
+      btn.textContent = t('btn_delete');
       btn.className = 'btn-small';
       btn.addEventListener('click', function () {
         PDBlockCore.getBlockedHosts(function (current) {
-          var next = (current || []).filter(function (h) { return h !== host; });
+          var next = (current || []).filter(function (h) {
+            return h !== host;
+          });
           PDBlockCore.setBlockedHosts(next, function () {
             renderBlockedList(next);
           });

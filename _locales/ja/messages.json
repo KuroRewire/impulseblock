@@ -1,0 +1,51 @@
+{
+  "extName": { "message": "PD Counter" },
+  "extDescription": { "message": "衝動を可視化し、自分を取り戻すツール。" },
+  "blocked_title": { "message": "このサイトはブロックされています" },
+  "blocked_currently": { "message": "現在ブロック中:" },
+  "blocked_confirm": { "message": "本当に開きますか？" },
+  "btn_open": { "message": "開く（5分だけ許可）" },
+  "btn_stop": { "message": "やめる" },
+  "blocked_sites": { "message": "ブロック中のサイト" },
+  "btn_delete": { "message": "削除" },
+  "impulse_log": { "message": "衝動ログ" },
+  "today_count": { "message": "今日のYes回数:" },
+  "last_recorded": { "message": "最終記録時刻:" },
+  "impulse_log_7d": { "message": "衝動ログ（7日）" },
+  "incognito_title": { "message": "シークレットモードでも使うには" },
+  "incognito_intro": { "message": "シークレットウィンドウでもブロックを有効にする手順：" },
+  "incognito_step1": { "message": "アドレスバーに chrome://extensions と入力して開く" },
+  "incognito_step2": { "message": "「PD Counter」の「シークレットモードで許可」をONにする" },
+  "incognito_help": { "message": "Chrome シークレットモードのヘルプ（外部）" },
+  "unknown_host": { "message": "不明" },
+  "empty_list": { "message": "なし" },
+  "cheer_alt": { "message": "がんばれ、耐えろ。" },
+  "popup_block_this_site": { "message": "このサイトをブロック" },
+  "popup_force_block_tab": { "message": "今すぐ再ブロック（このタブ）" },
+  "popup_status_no_url": { "message": "URLを取得できません" },
+  "popup_status_cant_block": { "message": "このページはブロックできません" },
+  "popup_status_blocked": {
+    "message": "ブロックしました: $1",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "popup_status_already": {
+    "message": "すでにブロック済み: $1",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "popup_status_no_tab": { "message": "タブ情報を取得できません" },
+  "popup_status_force_done": { "message": "再ブロックを実行しました" },
+  "overlay_force_block": { "message": "今すぐ再ブロック" },
+  "adult_suspicious": { "message": "アダルト疑いサイトです" },
+  "adult_add_candidate": { "message": "このサイトをブロック候補に追加" },
+  "adult_request_sent": { "message": "ブロック候補に追加リクエストを送信しました" }
+}

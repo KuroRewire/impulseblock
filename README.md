@@ -37,7 +37,7 @@ You can also manage the block list and see “currently blocked” info on that 
 4. Click **Load unpacked**.
 5. Select the **`pd-extension`** folder from this repo.
 
-After loading, you’ll see “PD Blocker” in the extensions list. Pin it if you like. If you add or change files under `assets/`, click the extension’s **Reload** on `chrome://extensions` to apply changes.
+After loading, you’ll see “PD Counter” in the extensions list. Pin it if you like. If you add or change files under `assets/`, click the extension’s **Reload** on `chrome://extensions` to apply changes.
 
 ---
 

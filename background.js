@@ -1,4 +1,4 @@
-console.log("PD Blocker background loaded", new Date().toISOString());
+console.log("PD Counter background loaded", new Date().toISOString());
 importScripts('block-core.js');
 
 // 「Yesで開く」直後のリダイレクトループを避けるため、
