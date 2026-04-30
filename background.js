@@ -1,4 +1,4 @@
-console.log("PD Counter background loaded", new Date().toISOString());
+console.log("ImpulseBlock background loaded", new Date().toISOString());
 importScripts('block-core.js');
 
 // 「Yesで開く」直後のリダイレクトループを避けるため、
@@ -74,7 +74,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     return;
   }
 
-  if (msg.type === 'ADULT_SUGGEST_BLOCK') {
+  if (msg.type === 'TRIGGER_SUGGEST_BLOCK') {
     var ahost = msg.hostname;
     if (ahost) {
       PDBlockCore.addBlockedHost(ahost, function () {});

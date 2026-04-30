@@ -1,7 +1,7 @@
 // 再ブロックオーバーレイ（TEMP_ALLOW 中のタブだけ表示）
 (function () {
-  var overlayId = 'pd-blocker-force-overlay';
-  var adultBannerId = 'pd-blocker-adult-banner';
+  var overlayId = 'impulseblock-force-overlay';
+  var triggerBannerId = 'impulseblock-trigger-banner';
 
   function t(key) {
     return chrome.i18n.getMessage(key) || '';
@@ -52,11 +52,11 @@
     document.body.appendChild(container);
   }
 
-  function createAdultBanner() {
-    if (document.getElementById(adultBannerId)) return;
+  function createTriggerBanner() {
+    if (document.getElementById(triggerBannerId)) return;
 
     var container = document.createElement('div');
-    container.id = adultBannerId;
+    container.id = triggerBannerId;
     container.style.position = 'fixed';
     container.style.top = '40px';
     container.style.right = '8px';
@@ -70,11 +70,11 @@
     container.style.maxWidth = '260px';
 
     var msg = document.createElement('div');
-    msg.textContent = t('adult_suspicious');
+    msg.textContent = t('trigger_suspicious');
     msg.style.marginBottom = '4px';
 
     var btn = document.createElement('button');
-    btn.textContent = t('adult_add_candidate');
+    btn.textContent = t('trigger_add_candidate');
     btn.style.border = 'none';
     btn.style.cursor = 'pointer';
     btn.style.fontSize = '11px';
@@ -87,10 +87,10 @@
       var hostname = window.location.hostname || '';
       if (!hostname) return;
       chrome.runtime.sendMessage({
-        type: 'ADULT_SUGGEST_BLOCK',
+        type: 'TRIGGER_SUGGEST_BLOCK',
         hostname: hostname
       });
-      msg.textContent = t('adult_request_sent');
+      msg.textContent = t('trigger_request_sent');
     });
 
     container.appendChild(msg);
@@ -98,7 +98,7 @@
     document.body.appendChild(container);
   }
 
-  function runAdultDetector() {
+  function runTriggerDetector() {
     try {
       var hostname = (window.location.hostname || '').toLowerCase();
       var title = (document.title || '').toLowerCase();
@@ -134,7 +134,7 @@
       });
 
       if (score >= 3) {
-        createAdultBanner();
+        createTriggerBanner();
       }
     } catch (e) {
       // 失敗しても何もしない
@@ -154,7 +154,7 @@
         }
       }
     );
-    runAdultDetector();
+    runTriggerDetector();
   }
 
   if (document.readyState === 'loading') {

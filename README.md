@@ -1,31 +1,44 @@
-# PD Counter
+# ImpulseBlock
 
-A Chrome extension (Manifest V3) that helps you manage porn-related impulses.
+Pause before distracting sites, track overrides, and regain control — privately, on-device.
 
-Built during my 100-day AI coding challenge. No build step—plain HTML, CSS, and JavaScript only.
+**No account. No cloud sync. All local. Open source.**
+
+A Chrome extension (Manifest V3) that puts a deliberate pause between you and the sites that pull you off task. Everything stays in your browser — there is no backend, no telemetry, no sign-in.
+
+Built with no build step — plain HTML, CSS, and JavaScript.
 
 ---
 
 ## Features
 
-- **Website blocking** — Block sites by hostname (exact match).
-- **Temporary allow (5 minutes)** — Choose “open” on the block page to allow that tab for 5 minutes, then it blocks again.
-- **Force re-block overlay** — On temporarily allowed sites, a small overlay lets you re-block immediately.
-- **Adult site detection (rule-based)** — Keyword-based detection can suggest adding a site to the block list.
-- **7-day impulse log** — View how many times you chose “open” per day, with a simple bar chart.
-- **Blocked site management** — Add/remove blocked hosts from the popup or from the block page.
+- **Block any site** — Add a hostname to your block list and ImpulseBlock redirects it to a mindful pause page.
+- **Mindful pause** — Before opening a blocked site, you see a confirmation page that asks if you really want to go there.
+- **5-minute temporary allow** — Choose "open" on the pause page to allow that tab for 5 minutes, then it blocks again. (Hard expiry — coming soon.)
+- **7-day override log** — See how many times you chose "open" each day, with a simple bar chart. Self-awareness over willpower.
+- **Quick re-block overlay** — On a temporarily allowed page, a small overlay lets you re-block immediately when the urge passes.
+- **Open source** — Read the code, audit the behavior, fork it.
+
+---
+
+## Privacy
+
+- All data lives in `chrome.storage.local` on your device.
+- No analytics, no remote servers, no third-party requests.
+- No account or sign-in.
+- The block list and override log never leave your browser.
 
 ---
 
 ## How it works
 
-When you visit a blocked site, the extension redirects you to a block page that shows:
+When you visit a site on your block list, ImpulseBlock redirects the tab to a pause page that shows:
 
-- The 7-day impulse log
-- A visual reminder (image)
-- Buttons to **open temporarily** (5 min) or **stop** (close tab / go back)
+- The 7-day override log
+- A visual reminder
+- Buttons to **open temporarily** (5 min) or **stay focused** (close tab / go back)
 
-You can also manage the block list and see “currently blocked” info on that page. The extension can detect likely adult pages (rule-based) and offer to add them to the block list.
+You can manage the block list and see "currently blocking" info from that page or from the toolbar popup.
 
 ---
 
@@ -37,22 +50,12 @@ You can also manage the block list and see “currently blocked” info on that 
 4. Click **Load unpacked**.
 5. Select the **`pd-extension`** folder from this repo.
 
-After loading, you’ll see “PD Counter” in the extensions list. Pin it if you like. If you add or change files under `assets/`, click the extension’s **Reload** on `chrome://extensions` to apply changes.
+After loading, you will see "ImpulseBlock" in the extensions list. Pin it if you like. If you change files under `assets/`, click the extension's **Reload** on `chrome://extensions` to apply changes.
 
----
-
-## Project
-
-This project is part of a 100-day AI coding challenge.
+Repository: https://github.com/KuroRewire/impulseblock
 
 ---
 
 ## Technical note (permissions)
 
 The extension currently uses `host_permissions: ["<all_urls>"]` for the MVP. The goal is to move to a more minimal setup later (e.g. declarativeNetRequest or host-only permissions). Block logic is centralized in `block-core.js` so the implementation can be swapped without changing the rest of the extension.
-
----
-
-## Disclaimer
-
-Adult detection is **rule-based and experimental**. It may mis-detect. Use the “suggested block” feature only as a hint, and review sites before adding them to your block list.

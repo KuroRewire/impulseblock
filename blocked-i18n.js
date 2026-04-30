@@ -11,5 +11,5 @@
       el.textContent = msg;
     }
   });
-  document.title = chrome.i18n.getMessage('extName') || 'PD Counter';
+  document.title = chrome.i18n.getMessage('extName') || 'ImpulseBlock';
 })();
