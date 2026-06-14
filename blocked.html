@@ -5,219 +5,295 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ImpulseBlock</title>
   <style>
+    /* ===== bundled fonts (local woff2 — MV3 CSP blocks remote font CSS) ===== */
+    @font-face { font-family: 'Archivo'; font-style: normal; font-weight: 400; font-display: swap; src: url('assets/fonts/archivo-400.woff2') format('woff2'); }
+    @font-face { font-family: 'Archivo'; font-style: normal; font-weight: 700; font-display: swap; src: url('assets/fonts/archivo-700.woff2') format('woff2'); }
+    @font-face { font-family: 'Archivo'; font-style: normal; font-weight: 800; font-display: swap; src: url('assets/fonts/archivo-800.woff2') format('woff2'); }
+    /* Archivo Narrow tops out at 700 on Google Fonts/fontsource; map 700–800 to the real 700 face. */
+    @font-face { font-family: 'Archivo Narrow'; font-style: normal; font-weight: 700 800; font-display: swap; src: url('assets/fonts/archivo-narrow-700.woff2') format('woff2'); }
+    @font-face { font-family: 'Space Grotesk'; font-style: normal; font-weight: 400; font-display: swap; src: url('assets/fonts/space-grotesk-400.woff2') format('woff2'); }
+    @font-face { font-family: 'Space Grotesk'; font-style: normal; font-weight: 500; font-display: swap; src: url('assets/fonts/space-grotesk-500.woff2') format('woff2'); }
+    @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url('assets/fonts/jetbrains-mono-400.woff2') format('woff2'); }
+    @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 700; font-display: swap; src: url('assets/fonts/jetbrains-mono-700.woff2') format('woff2'); }
+    @font-face { font-family: 'Fraunces'; font-style: italic; font-weight: 400; font-display: swap; src: url('assets/fonts/fraunces-400-italic.woff2') format('woff2'); }
+    @font-face { font-family: 'Fraunces'; font-style: normal; font-weight: 500; font-display: swap; src: url('assets/fonts/fraunces-500.woff2') format('woff2'); }
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('assets/fonts/inter-400.woff2') format('woff2'); }
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 500; font-display: swap; src: url('assets/fonts/inter-500.woff2') format('woff2'); }
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('assets/fonts/inter-600.woff2') format('woff2'); }
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 700; font-display: swap; src: url('assets/fonts/inter-700.woff2') format('woff2'); }
+    @font-face { font-family: 'Nunito'; font-style: normal; font-weight: 700; font-display: swap; src: url('assets/fonts/nunito-700.woff2') format('woff2'); }
+    @font-face { font-family: 'Nunito'; font-style: normal; font-weight: 800; font-display: swap; src: url('assets/fonts/nunito-800.woff2') format('woff2'); }
+
     *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
     body {
-      font-family: sans-serif;
-      max-width: 1280px;
-      margin: 16px auto 24px;
-      padding: 0 clamp(16px, 4vw, 24px);
-      font-size: 16px;
-      overflow-x: hidden;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
-    h1 {
-      font-size: clamp(1.5rem, 5vw, 2.625rem);
-      font-weight: 700;
-      margin: 0 0 12px 0;
-      text-align: center;
+
+    /* ===== shared screen shell ===== */
+    .screen {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 48px 24px;
+      position: relative; overflow: hidden;
     }
-    .current-info { text-align: center; margin: 0 auto 20px; max-width: 1200px; }
-    .current-host-text { font-size: clamp(1rem, 3vw, 1.25rem); margin: 0 0 4px 0; }
-    .current-question { font-size: clamp(0.95rem, 2.5vw, 1.125rem); margin: 0; }
-    .section-title { margin-top: 16px; margin-bottom: 4px; font-size: 15px; color: #333; }
-    .main-grid {
-      display: grid;
-      gap: 24px;
-      align-items: flex-start;
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
+    .layout { width: 100%; position: relative; z-index: 1; }
+
+    /* structural pieces — themes restyle these, blocked.js keeps the ids */
+    .domain-chip { display: inline-flex; align-items: center; gap: 8px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+    .headline { margin: 0; }
+    .sub { margin: 0; }
+    .cheer {
+      aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
     }
-    .col-left,
-    .col-center,
-    .col-right { min-width: 0; }
-    .card { background: #fff; border-radius: 8px; padding: 12px 14px; margin-top: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-    .card-title { margin: 0 0 6px 0; font-size: 15px; font-weight: bold; color: #333; }
-    .button-group { display: flex; gap: 16px; margin: 12px 0 4px 0; justify-content: center; align-items: center; }
-    .btn-open {
-      background-color: #f3f4f6;
-      color: #6b7280;
-      font-size: 0.9rem;
-      font-weight: 400;
-      padding: 10px 24px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.2s;
+    .cheer img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .insight { margin: 0; }
+    .actions { display: flex; gap: 14px; }
+    .btn { cursor: pointer; border: none; font-family: inherit; transition: all .15s ease; }
+
+    /* ▼ details (review data) — shared base, theme-tinted */
+    .details { margin-top: 18px; width: 100%; }
+    .details > summary {
+      list-style: none; cursor: pointer; user-select: none;
+      font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
+      opacity: 0.7;
     }
-    .btn-open:hover {
-      background-color: #e5e7eb;
-    }
-    .btn-stop {
-      background-color: #16a34a;
-      color: #ffffff;
-      font-size: 1.2rem;
-      font-weight: 700;
-      padding: 16px 48px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
-      transition: background-color 0.2s;
-    }
-    .btn-stop:hover {
-      background-color: #15803d;
-    }
-    .stats { font-size: 15px; color: #333; margin: 12px 0; }
-    .history { font-size: 12px; margin: 8px 0 4px 0; }
-    .history-title { margin: 0 0 4px 0; font-size: 14px; color: #333; }
-    #history-list { margin-top: 2px; }
-    .history-row { display: flex; align-items: center; margin: 2px 0; min-width: 0; }
-    .history-date { flex: 0 0 auto; width: 3rem; min-width: 0; color: #555; font-size: 11px; }
-    .history-bar { flex: 1 1 auto; min-width: 0; margin: 0 6px; background: #eee; border-radius: 4px; overflow: hidden; height: 8px; }
-    .history-bar-fill { height: 100%; background: #4caf50; }
-    .history-count { flex: 0 0 auto; min-width: 1.5rem; text-align: right; font-size: 11px; }
-    .cheer { text-align: center; margin: 8px 0 4px 0; }
-    .cheer img {
-      max-width: min(400px, 100%);
-      width: 100%;
-      height: auto;
-      border-radius: 10px;
-      display: block;
-      margin: 0 auto;
-    }
-    #blocked-list { font-size: 13px; margin-top: 4px; border-top: 1px solid #eee; padding-top: 4px; max-height: 200px; overflow-y: auto; }
-    .blocked-item { display: flex; align-items: center; justify-content: space-between; padding: 2px 0; }
+    .details > summary::-webkit-details-marker { display: none; }
+    .details > summary::before { content: '▸'; font-size: 10px; transition: transform .15s ease; }
+    .details[open] > summary::before { transform: rotate(90deg); }
+    .details-body { margin-top: 14px; text-align: left; }
+
+    /* stats text (today-count / last-opened) */
+    .stats p { margin: 0; }
+
+    /* 7-day history rows (blocked.js renders into #history-list) */
+    .history-title { margin: 0 0 6px 0; font-size: 13px; opacity: 0.8; }
+    #history-list { margin: 4px 0 14px; }
+    .history-row { display: flex; align-items: center; margin: 3px 0; min-width: 0; }
+    .history-date { flex: 0 0 auto; width: 3rem; font-size: 11px; opacity: 0.7; }
+    .history-bar { flex: 1 1 auto; min-width: 0; margin: 0 6px; border-radius: 4px; overflow: hidden; height: 7px; }
+    .history-bar-fill { height: 100%; }
+    .history-count { flex: 0 0 auto; min-width: 1.5rem; text-align: right; font-size: 11px; opacity: 0.85; }
+
+    /* bursts + blocked list inside details */
+    #bursts-list, #blocked-list { font-size: 12px; margin-top: 4px; }
+    .blocked-item { display: flex; align-items: center; justify-content: space-between; padding: 3px 0; }
     .blocked-host { flex: 1; margin-right: 6px; word-break: break-all; }
-    .btn-small { padding: 2px 6px; font-size: 11px; }
-    .incognito {
-      margin: 32px auto 0;
-      padding: 16px;
-      background: #f5f5f5;
-      border-radius: 8px;
-      font-size: 14px;
-      max-width: 1200px;
-    }
-    .incognito h2 { font-size: 14px; margin: 0 0 8px 0; }
-    .incognito ol { margin: 0; padding-left: 20px; }
-    .incognito a { color: #06c; }
-    .history-row:first-child .history-date { font-weight: bold; }
+    .btn-small { padding: 2px 8px; font-size: 11px; cursor: pointer; border-radius: 4px; }
 
-    /* Wide: >= 1024px — 3 columns */
-    @media (min-width: 1024px) {
-      .main-grid {
-        grid-template-columns: 1fr 1.1fr 1fr;
-      }
-    }
+    /* incognito — tucked at very bottom, quiet */
+    .incognito { margin-top: 40px; font-size: 13px; opacity: 0.7; max-width: 460px; text-align: left; }
+    .incognito h2 { font-size: 13px; margin: 0 0 6px 0; font-weight: 600; }
+    .incognito ol { margin: 0; padding-left: 18px; }
+    .incognito a { color: inherit; }
 
-    /* Medium: 768px–1023px — cheer + buttons full width, then two columns */
-    @media (min-width: 768px) and (max-width: 1023px) {
-      .main-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-      .col-center {
-        grid-column: 1 / -1;
-        grid-row: 1;
-      }
-      .col-left {
-        grid-column: 1;
-        grid-row: 2;
-      }
-      .col-right {
-        grid-column: 2;
-        grid-row: 2;
-      }
-    }
+    /* ============================================================= */
+    /* THEME: BOLD                                                    */
+    /* ============================================================= */
+    body[data-theme="bold"] .screen { background: #fafaf8; color: #0a0a0a; justify-content: flex-start; padding: 56px clamp(28px,6vw,80px); }
+    body[data-theme="bold"] .layout { max-width: 1100px; margin: 0 auto; }
+    body[data-theme="bold"] .top-rule { display: flex; justify-content: space-between; align-items: center; font-family: 'Archivo', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; border-bottom: 2px solid #0a0a0a; padding-bottom: 10px; margin-bottom: 36px; }
+    body[data-theme="bold"] .top-rule .accent-dot { width: 9px; height: 9px; border-radius: 50%; background: #e8482b; display: inline-block; margin-right: 7px; vertical-align: middle; }
+    body[data-theme="bold"] .mid { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 40px; align-items: end; }
+    body[data-theme="bold"] .headline { font-family: 'Archivo Narrow', sans-serif; font-weight: 800; font-size: clamp(56px,11vw,150px); line-height: 0.86; letter-spacing: -0.02em; text-transform: uppercase; }
+    body[data-theme="bold"] .headline .q { color: #e8482b; }
+    body[data-theme="bold"] .domain-chip { font-family: 'Archivo', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 18px; }
+    body[data-theme="bold"] .domain-chip .dot { background: #e8482b; width: 8px; height: 8px; }
+    body[data-theme="bold"] .sub { font-family: 'Archivo', sans-serif; font-size: 17px; line-height: 1.4; color: #333; max-width: 280px; }
+    body[data-theme="bold"] .cheer { width: 100%; max-width: 220px; margin: 26px 0 0; background: #ececec; border: 2px solid #0a0a0a; }
+    body[data-theme="bold"] .insight { font-family: 'Archivo', sans-serif; font-size: 14px; color: #888; margin-top: 14px; }
+    body[data-theme="bold"] .details > summary { font-family: 'Archivo', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #0a0a0a; opacity: 1; }
+    body[data-theme="bold"] .history-bar { background: #e0e0e0; }
+    body[data-theme="bold"] .history-bar-fill { background: #0a0a0a; }
+    body[data-theme="bold"] .actions { margin-top: 40px; gap: 0; border-top: 2px solid #0a0a0a; }
+    body[data-theme="bold"] .btn { flex: 1; background: #fafaf8; color: #0a0a0a; font-family: 'Archivo Narrow', sans-serif; font-weight: 800; text-transform: uppercase; font-size: clamp(20px,3vw,30px); padding: 22px 24px; text-align: left; }
+    body[data-theme="bold"] .btn + .btn { border-left: 2px solid #0a0a0a; }
+    body[data-theme="bold"] #btn-no:hover { background: #0a0a0a; color: #fafaf8; }
+    body[data-theme="bold"] #btn-yes:hover { background: #e8482b; color: #fff; }
+    body[data-theme="bold"] .stats { margin-top: 2px; }
 
-    /* Narrow: < 768px — single column order: cheer → impulse → blocked */
-    @media (max-width: 767px) {
-      body { padding: 0 16px; }
-      .main-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-      .col-center,
-      .col-left,
-      .col-right {
-        grid-column: 1;
-        grid-row: auto;
-      }
-      .col-center { order: 1; }
-      .col-right { order: 2; }
-      .col-left { order: 3; }
-      .card { margin-top: 0; }
-      .button-group {
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-      }
-      .btn-stop {
-        order: -1;
-        width: 100%;
-        max-width: 320px;
-      }
-      .btn-open {
-        width: 100%;
-        max-width: 320px;
-      }
-      .incognito { margin-top: 24px; }
+    /* ============================================================= */
+    /* THEME: FOCUS                                                   */
+    /* ============================================================= */
+    body[data-theme="focus"] .screen { background: #0a0c10; color: #cdd6e4; justify-content: flex-start; padding: 40px clamp(28px,5vw,64px); font-family: 'JetBrains Mono', monospace; }
+    body[data-theme="focus"] .layout { max-width: 1080px; margin: 0 auto; }
+    body[data-theme="focus"] .top-rule { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #5b6677; border-bottom: 1px solid #1c2330; padding-bottom: 14px; margin-bottom: 0; }
+    body[data-theme="focus"] .top-rule .accent-dot { color: #3d7dff; }
+    body[data-theme="focus"] .top-rule .accent-dot .dot { background: #3d7dff; box-shadow: 0 0 8px #3d7dff; }
+    body[data-theme="focus"] .hero { padding: 56px 0 0; position: relative; }
+    body[data-theme="focus"] .bracket { position: relative; display: inline-block; padding: 18px 26px; }
+    body[data-theme="focus"] .bracket::before, body[data-theme="focus"] .bracket::after { content: ''; position: absolute; width: 16px; height: 16px; border: 2px solid #3d7dff; }
+    body[data-theme="focus"] .bracket::before { top: 0; left: 0; border-right: none; border-bottom: none; }
+    body[data-theme="focus"] .bracket::after { bottom: 0; right: 0; border-left: none; border-top: none; }
+    body[data-theme="focus"] .headline { font-family: 'JetBrains Mono', monospace; font-size: clamp(24px,5vw,48px); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #3d7dff; text-shadow: 0 0 24px rgba(61,125,255,0.35); }
+    body[data-theme="focus"] .domain-chip { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #5b6677; margin-top: 20px; }
+    body[data-theme="focus"] .domain-chip .dot { background: #3d7dff; }
+    body[data-theme="focus"] .sub { font-family: 'JetBrains Mono', monospace; font-size: clamp(13px,1.6vw,16px); color: #8a96a8; margin-top: 18px; line-height: 1.7; }
+    body[data-theme="focus"] .cheer { width: 180px; margin: 30px 0 0; border-radius: 4px; background: #0e131b; border: 1px solid #1f2836; }
+    body[data-theme="focus"] .insight { font-family: 'JetBrains Mono', monospace; color: #5b6677; font-size: 13px; margin-top: 16px; }
+    body[data-theme="focus"] .details > summary { font-family: 'JetBrains Mono', monospace; color: #3d7dff; text-transform: uppercase; letter-spacing: 0.06em; }
+    body[data-theme="focus"] .history-title, body[data-theme="focus"] .stats { font-family: 'JetBrains Mono', monospace; }
+    body[data-theme="focus"] .history-bar { background: #1c2330; }
+    body[data-theme="focus"] .history-bar-fill { background: #3d7dff; }
+    body[data-theme="focus"] .actions { margin-top: 28px; gap: 16px; }
+    body[data-theme="focus"] .btn { flex: 1; background: transparent; color: #cdd6e4; border: 1px solid #28323f; font-family: 'JetBrains Mono', monospace; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; padding: 18px 22px; text-align: left; }
+    body[data-theme="focus"] #btn-no { border-color: #3d7dff; color: #3d7dff; }
+    body[data-theme="focus"] #btn-no:hover { background: rgba(61,125,255,0.1); }
+    body[data-theme="focus"] #btn-yes:hover { border-color: #5b6677; color: #fff; }
+
+    /* ============================================================= */
+    /* THEME: CALM                                                    */
+    /* ============================================================= */
+    body[data-theme="calm"] .screen { background: radial-gradient(120% 120% at 50% 0%, #fff5ec 0%, #fdeee2 45%, #f7e7e0 100%); color: #4a3f3a; font-family: 'Nunito', sans-serif; }
+    body[data-theme="calm"] .layout { max-width: 560px; margin: 0 auto; text-align: center; }
+    body[data-theme="calm"] .top-rule { display: none; }
+    body[data-theme="calm"] .domain-chip { font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700; color: #b08968; margin-bottom: 18px; justify-content: center; }
+    body[data-theme="calm"] .domain-chip .dot { background: #ff9f5a; }
+    body[data-theme="calm"] .headline { font-family: 'Nunito', sans-serif; font-size: clamp(38px,7vw,60px); font-weight: 800; letter-spacing: -0.02em; color: #3a2f2a; }
+    body[data-theme="calm"] .headline .q { color: #ff8a4c; }
+    body[data-theme="calm"] .sub { font-family: 'Nunito', sans-serif; font-size: clamp(15px,2.4vw,19px); color: #8a766c; margin-top: 14px; font-weight: 600; }
+    body[data-theme="calm"] .cheer { width: 100%; max-width: 280px; margin: 28px auto 0; border-radius: 28px; background: #fff; border: 1px solid rgba(180,140,110,0.18); box-shadow: 0 18px 50px rgba(180,120,80,0.14); }
+    body[data-theme="calm"] .insight { font-family: 'Nunito', sans-serif; font-size: 15px; color: #a8928a; margin-top: 18px; font-weight: 600; }
+    body[data-theme="calm"] .details { text-align: center; }
+    body[data-theme="calm"] .details > summary { font-family: 'Nunito', sans-serif; font-weight: 700; color: #b08968; justify-content: center; }
+    body[data-theme="calm"] .history-bar { background: #f0e0d4; }
+    body[data-theme="calm"] .history-bar-fill { background: #ff9f5a; }
+    body[data-theme="calm"] .actions { margin-top: 28px; justify-content: center; }
+    body[data-theme="calm"] .btn { border-radius: 999px; font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; padding: 16px 30px; display: inline-flex; align-items: center; gap: 8px; }
+    body[data-theme="calm"] #btn-yes { background: #fff; color: #6a564c; border: 1.5px solid #e6d3c6; }
+    body[data-theme="calm"] #btn-yes:hover { background: #fbf2ec; }
+    body[data-theme="calm"] #btn-no { background: linear-gradient(135deg, #ff9f5a, #ff7e54); color: #fff; box-shadow: 0 10px 24px rgba(255,126,84,0.34); }
+    body[data-theme="calm"] #btn-no:hover { filter: brightness(1.05); }
+
+    /* ============================================================= */
+    /* THEME: MINIMAL                                                 */
+    /* ============================================================= */
+    body[data-theme="minimal"] .screen { background: #fff; color: #1a1a1a; font-family: 'Space Grotesk', sans-serif; }
+    body[data-theme="minimal"] .layout { max-width: 460px; margin: 0 auto; text-align: center; }
+    body[data-theme="minimal"] .top-rule { display: none; }
+    body[data-theme="minimal"] .domain-chip { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 500; color: #9a9a9a; margin-bottom: 30px; justify-content: center; }
+    body[data-theme="minimal"] .domain-chip .dot { background: #1a1a1a; width: 6px; height: 6px; }
+    body[data-theme="minimal"] .headline { font-family: 'Space Grotesk', sans-serif; font-size: clamp(26px,4.4vw,38px); font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; }
+    body[data-theme="minimal"] .sub { display: none; }
+    body[data-theme="minimal"] .cheer { width: 200px; margin: 34px auto; border-radius: 16px; background: #f6f6f6; border: 1px solid #ededed; }
+    body[data-theme="minimal"] .insight { font-family: 'Space Grotesk', sans-serif; font-size: 14px; color: #9a9a9a; margin: 0 0 30px; }
+    body[data-theme="minimal"] .details { text-align: center; }
+    body[data-theme="minimal"] .details > summary { font-family: 'Space Grotesk', sans-serif; color: #888; justify-content: center; }
+    body[data-theme="minimal"] .history-bar { background: #eee; }
+    body[data-theme="minimal"] .history-bar-fill { background: #4f46e5; }
+    body[data-theme="minimal"] .actions { justify-content: center; }
+    body[data-theme="minimal"] .btn { border-radius: 12px; font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 500; padding: 13px 26px; }
+    body[data-theme="minimal"] #btn-yes { background: #fff; color: #555; border: 1px solid #e2e2e2; }
+    body[data-theme="minimal"] #btn-yes:hover { background: #f7f7f7; }
+    body[data-theme="minimal"] #btn-no { background: #4f46e5; color: #fff; box-shadow: 0 8px 22px rgba(79,70,229,0.22); }
+    body[data-theme="minimal"] #btn-no:hover { background: #4338ca; }
+
+    /* ============================================================= */
+    /* THEME: ZEN                                                     */
+    /* ============================================================= */
+    body[data-theme="zen"] .screen { background: #f5f2ea; color: #2b2622; font-family: 'Fraunces', Georgia, serif; }
+    body[data-theme="zen"] .layout { max-width: 600px; margin: 0 auto; text-align: center; }
+    body[data-theme="zen"] .enso { position: absolute; top: 46%; left: 50%; width: 300px; height: 300px; transform: translate(-50%,-50%); pointer-events: none; z-index: 0; background-image: url('assets/enso.png'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.10; }
+    body[data-theme="zen"] .top-rule { display: none; }
+    body[data-theme="zen"] .domain-chip { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: #a89a86; margin-bottom: 30px; justify-content: center; }
+    body[data-theme="zen"] .domain-chip .dot { background: #8a7a64; width: 5px; height: 5px; }
+    body[data-theme="zen"] .headline { font-family: 'Fraunces', serif; font-weight: 400; font-style: italic; font-size: clamp(28px,5vw,48px); line-height: 1.28; color: #2b2622; }
+    body[data-theme="zen"] .sub { font-family: 'Inter', sans-serif; font-size: clamp(13px,1.8vw,16px); color: #8a7d6c; margin-top: 22px; line-height: 1.7; }
+    body[data-theme="zen"] .cheer { width: 100%; max-width: 220px; margin: 34px auto 0; border-radius: 14px; background: #efe9dd; border: 1px solid rgba(120,105,80,0.2); }
+    body[data-theme="zen"] .insight { font-family: 'Fraunces', serif; font-style: italic; font-size: 16px; color: #9a8d7a; margin-top: 24px; }
+    body[data-theme="zen"] .details { text-align: center; }
+    body[data-theme="zen"] .details > summary { font-family: 'Inter', sans-serif; color: #8a7d6c; justify-content: center; }
+    body[data-theme="zen"] .history-title, body[data-theme="zen"] .stats { font-family: 'Inter', sans-serif; }
+    body[data-theme="zen"] .history-bar { background: #e6ddcc; }
+    body[data-theme="zen"] .history-bar-fill { background: #6a5e4d; }
+    body[data-theme="zen"] .actions { margin-top: 32px; justify-content: center; }
+    body[data-theme="zen"] .btn { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; padding: 14px 32px; border-radius: 2px; }
+    body[data-theme="zen"] #btn-yes { background: transparent; color: #6a5e4d; border: 1px solid #cabfa8; }
+    body[data-theme="zen"] #btn-yes:hover { background: rgba(180,165,135,0.12); }
+    body[data-theme="zen"] #btn-no { background: #2b2622; color: #f5f2ea; border: 1px solid #2b2622; }
+    body[data-theme="zen"] #btn-no:hover { background: #1a1612; }
+
+    /* ===== responsive ===== */
+    @media (max-width: 720px) {
+      body[data-theme="bold"] .mid { grid-template-columns: 1fr; gap: 20px; }
+      body[data-theme="bold"] .actions { flex-direction: column; }
+      body[data-theme="bold"] .btn + .btn { border-left: none; border-top: 2px solid #0a0a0a; }
+      .actions { flex-direction: column; }
     }
   </style>
 </head>
-<body>
-  <h1 data-i18n="blocked_title"></h1>
-  <div class="current-info">
-    <p id="current-host" class="current-host-text">—</p>
-    <p class="current-question" data-i18n="blocked_confirm"></p>
+<body data-theme="minimal">
+  <div class="screen">
+    <div class="layout">
+
+      <!-- top rule (shown only in bold/focus) -->
+      <div class="top-rule">
+        <span><span class="accent-dot"><span class="dot" style="width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:7px;vertical-align:middle;"></span></span>IMPULSEBLOCK</span>
+        <span>INTERRUPT BEFORE IMPULSE</span>
+      </div>
+
+      <!-- BOLD uses a 2-col mid; other themes ignore .mid grid (single col) -->
+      <div class="mid">
+        <h1 class="headline" data-i18n="blocked_confirm"></h1>
+
+        <div class="center-col">
+          <span class="domain-chip"><span class="dot"></span><span id="current-host">—</span></span>
+          <p class="sub" data-i18n="blocked_title"></p>
+
+          <div class="cheer"><img id="cheer-image" src="assets/taero_en.png" alt="" /></div>
+
+          <!-- insight: one-line stats (blocked.js fills today-count / last-opened) -->
+          <div class="insight stats">
+            <p id="today-count">—</p>
+            <p id="last-opened">—</p>
+          </div>
+
+          <!-- ▼ details: review data (7-day graph, bursts, blocklist) -->
+          <details class="details">
+            <summary data-i18n="impulse_log"></summary>
+            <div class="details-body">
+              <p class="history-title" data-i18n="impulse_log_7d"></p>
+              <div id="history-list"></div>
+
+              <p class="history-title" data-i18n="recent_bursts"></p>
+              <div id="bursts-list"></div>
+
+              <p class="history-title" data-i18n="blocked_sites"></p>
+              <div id="blocked-list"></div>
+            </div>
+          </details>
+
+          <div class="actions">
+            <button type="button" class="btn" id="btn-yes" data-i18n="allow_5min"></button>
+            <button type="button" class="btn" id="btn-no" data-i18n="btn_stop"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- enso overlay (zen only) -->
+      <div class="enso"></div>
+
+      <!-- incognito help, quiet at bottom -->
+      <section class="incognito">
+        <h2 data-i18n="incognito_title"></h2>
+        <p data-i18n="incognito_intro"></p>
+        <ol>
+          <li data-i18n="incognito_step1"></li>
+          <li data-i18n="incognito_step2"></li>
+        </ol>
+        <p><a href="https://support.google.com/chrome/answer/95464" target="_blank" rel="noopener" data-i18n="incognito_help"></a></p>
+      </section>
+
+    </div>
   </div>
-
-  <div class="main-grid">
-    <div class="col-left">
-      <div class="card">
-        <p class="card-title" data-i18n="blocked_sites"></p>
-        <div id="blocked-list"></div>
-      </div>
-    </div>
-
-    <div class="col-center">
-      <div class="card">
-        <div class="cheer"><img id="cheer-image" src="assets/taero_en.png" alt="" /></div>
-        <div class="button-group">
-          <button type="button" class="btn-open" id="btn-yes" data-i18n="allow_5min"></button>
-          <button type="button" class="btn-stop" id="btn-no" data-i18n="btn_stop"></button>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-right">
-      <div class="card">
-        <p class="card-title" data-i18n="impulse_log"></p>
-        <div class="stats">
-          <p id="today-count">—</p>
-          <p id="last-opened">—</p>
-        </div>
-        <div class="history">
-          <p class="history-title" data-i18n="impulse_log_7d"></p>
-          <div id="history-list"></div>
-        </div>
-        <div class="bursts">
-          <p class="history-title" data-i18n="recent_bursts" style="margin-top: 12px;"></p>
-          <div id="bursts-list"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <section class="incognito">
-    <h2 data-i18n="incognito_title"></h2>
-    <p data-i18n="incognito_intro"></p>
-    <ol>
-      <li data-i18n="incognito_step1"></li>
-      <li data-i18n="incognito_step2"></li>
-    </ol>
-    <p><a href="https://support.google.com/chrome/answer/95464" target="_blank" rel="noopener" data-i18n="incognito_help"></a></p>
-  </section>
 
   <script src="block-core.js"></script>
+  <script src="theme-loader.js"></script>
   <script src="blocked-i18n.js"></script>
   <script src="blocked.js"></script>
 </body>

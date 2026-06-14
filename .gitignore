@@ -1,3 +1,5 @@
 .DS_Store
 *.DS_Store
 
+blocked.html.f0-backup
+*.bak
