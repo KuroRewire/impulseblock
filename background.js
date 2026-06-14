@@ -70,6 +70,29 @@ function setOverrideHistory(history, callback) {
   chrome.storage.local.set(payload, callback || function () {});
 }
 
+function cutoffDateKey(daysAgo) {
+  var d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  var y = d.getFullYear();
+  var m = String(d.getMonth() + 1).padStart(2, '0');
+  var day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function pruneOldOverrideHistory() {
+  var cutoff = cutoffDateKey(7);
+  getOverrideHistory(function (history) {
+    var changed = false;
+    Object.keys(history).forEach(function (dateKey) {
+      if (dateKey < cutoff) {
+        delete history[dateKey];
+        changed = true;
+      }
+    });
+    if (changed) setOverrideHistory(history);
+  });
+}
+
 function getTodayHostEntries(history, host) {
   var key = todayKey();
   var todayMap = history[key] || {};
@@ -165,6 +188,14 @@ function clearTempAllowFor(host, callback) {
     setTempAllowed(map, function () { callback && callback(); });
   });
 }
+
+chrome.runtime.onStartup.addListener(function () {
+  pruneOldOverrideHistory();
+});
+
+chrome.runtime.onInstalled.addListener(function () {
+  pruneOldOverrideHistory();
+});
 
 chrome.alarms.onAlarm.addListener(function (alarm) {
   var parsed = parseAlarmName(alarm.name);
