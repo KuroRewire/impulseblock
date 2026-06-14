@@ -3,7 +3,6 @@
 // re-render across SPA navigations and storage updates.
 (function () {
   var overlayId = 'impulseblock-countdown-overlay';
-  var triggerBannerId = 'impulseblock-trigger-banner';
   var TEMP_ALLOW_KEY = 'tempAllowedHosts';
   var tickHandle = null;
   var currentExpiresAt = 0;
@@ -154,99 +153,8 @@
     syncFromStorage();
   });
 
-  function createTriggerBanner() {
-    if (document.getElementById(triggerBannerId)) return;
-    if (!document.body) return;
-
-    var container = document.createElement('div');
-    container.id = triggerBannerId;
-    container.style.position = 'fixed';
-    container.style.top = '56px';
-    container.style.right = '16px';
-    container.style.zIndex = '2147483647';
-    container.style.background = 'rgba(0,0,0,0.85)';
-    container.style.color = '#fff';
-    container.style.padding = '6px 10px';
-    container.style.borderRadius = '6px';
-    container.style.fontSize = '12px';
-    container.style.fontFamily = 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif';
-    container.style.maxWidth = '260px';
-
-    var msg = document.createElement('div');
-    msg.textContent = t('trigger_suspicious');
-    msg.style.marginBottom = '4px';
-
-    var btn = document.createElement('button');
-    btn.textContent = t('trigger_add_candidate');
-    btn.style.border = 'none';
-    btn.style.cursor = 'pointer';
-    btn.style.fontSize = '11px';
-    btn.style.padding = '2px 6px';
-    btn.style.borderRadius = '4px';
-    btn.style.background = '#ff9800';
-    btn.style.color = '#fff';
-
-    btn.addEventListener('click', function () {
-      var hostname = window.location.hostname || '';
-      if (!hostname) return;
-      chrome.runtime.sendMessage({
-        type: 'TRIGGER_SUGGEST_BLOCK',
-        hostname: hostname
-      });
-      msg.textContent = t('trigger_request_sent');
-    });
-
-    container.appendChild(msg);
-    container.appendChild(btn);
-    document.body.appendChild(container);
-  }
-
-  function runTriggerDetector() {
-    try {
-      var hostname = (window.location.hostname || '').toLowerCase();
-      var title = (document.title || '').toLowerCase();
-      var bodyText = '';
-      if (document.body && document.body.innerText) {
-        bodyText = document.body.innerText.toLowerCase();
-      }
-
-      var text = hostname + ' ' + title + ' ' + bodyText.slice(0, 50000);
-
-      var keywords = [
-        'porn',
-        'xxx',
-        'sex',
-        'adult',
-        'nsfw',
-        ' エロ',
-        'エロ ',
-        'アダルト',
-        'セックス',
-        '無修正',
-        '裏動画',
-        'オナニー',
-        'ヌード',
-        'jav '
-      ];
-
-      var score = 0;
-      keywords.forEach(function (k) {
-        if (text.indexOf(k.toLowerCase()) !== -1) {
-          score += 1;
-        }
-      });
-
-      if (score >= 3) {
-        createTriggerBanner();
-      }
-    } catch (e) {
-      // 失敗しても何もしない
-    }
-  }
-
   function init() {
     syncFromStorage();
-    runTriggerDetector();
   }
 
   if (document.readyState === 'loading') {
