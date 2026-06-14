@@ -47,5 +47,11 @@
   "overlay_force_block": { "message": "Re-block now" },
   "trigger_suspicious": { "message": "Possibly distracting site" },
   "trigger_add_candidate": { "message": "Add as block candidate" },
-  "trigger_request_sent": { "message": "Block candidate request sent" }
+  "trigger_request_sent": { "message": "Block candidate request sent" },
+  "allow_5min": { "message": "Allow for 5 min" },
+  "allow_10min": { "message": "Allow for 10 min" },
+  "allow_15min": { "message": "Allow for 15 min" },
+  "allow_20min": { "message": "Allow for 20 min" },
+  "daily_cap_reached": { "message": "Enough for today" },
+  "recent_bursts": { "message": "Recent bursts" }
 }

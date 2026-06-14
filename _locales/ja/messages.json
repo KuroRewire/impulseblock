@@ -47,5 +47,11 @@
   "overlay_force_block": { "message": "今すぐ再ブロック" },
   "trigger_suspicious": { "message": "気が散る可能性のあるサイト" },
   "trigger_add_candidate": { "message": "このサイトをブロック候補に追加" },
-  "trigger_request_sent": { "message": "ブロック候補に追加リクエストを送信しました" }
+  "trigger_request_sent": { "message": "ブロック候補に追加リクエストを送信しました" },
+  "allow_5min": { "message": "5分だけ許可" },
+  "allow_10min": { "message": "10分だけ許可" },
+  "allow_15min": { "message": "15分だけ許可" },
+  "allow_20min": { "message": "20分だけ許可" },
+  "daily_cap_reached": { "message": "今日は十分見ました" },
+  "recent_bursts": { "message": "直近のbursts" }
 }
