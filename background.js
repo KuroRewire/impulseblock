@@ -7,9 +7,13 @@ importScripts('block-core.js');
 var TEMP_ALLOW_KEY = 'tempAllowedHosts';
 var ALARM_PREFIX = 'expire:';
 
-// Renewal ladder: per-host overrides scale 5→10→15→20min over the day.
+// Renewal ladder: per-host overrides scale 5→10→15→20min within an urge session.
 var LADDER_DURATIONS_MS = [5 * 60 * 1000, 10 * 60 * 1000, 15 * 60 * 1000, 20 * 60 * 1000];
 var DAILY_CAP_MS = 60 * 60 * 1000;
+// The ladder rung reflects the CURRENT session: a quiet gap longer than this since the
+// previous grant ENDED starts a fresh session back at rung 0 (5 min). The 60-min daily
+// cap above is independent and still counts every override of the day.
+var RESET_THRESHOLD_MS = 15 * 60 * 1000;
 var OVERRIDE_HISTORY_KEY = 'overrideHistoryByDate';
 
 function getTempAllowed(callback) {
@@ -99,11 +103,40 @@ function getTodayHostEntries(history, host) {
   return todayMap[host] || [];
 }
 
+// Ladder rung for the NEXT override = how many of today's entries belong to the
+// CURRENT session. A session is the trailing run of overrides where each one starts
+// within RESET_THRESHOLD_MS of the previous grant's END (startedAt + durationMs).
+// A quiet gap longer than the threshold since the last grant ended means this override
+// begins a fresh session at rung index 0 (5 min). This only READS the existing entries;
+// it does not change what recordOverrideStart writes. The daily cap is computed
+// separately over ALL of today's entries, so morning minutes still count tonight.
+function sessionRungIndex(entries, now) {
+  if (!entries || entries.length === 0) return 0;
+  var sorted = entries.slice().sort(function (a, b) { return a.startedAt - b.startedAt; });
+  var last = sorted[sorted.length - 1];
+  var lastEnd = last.startedAt + (last.durationMs || 0);
+  // Fresh session: nothing recent to continue from.
+  if (now - lastEnd > RESET_THRESHOLD_MS) return 0;
+  // Count the trailing run of entries that chain together into the current session.
+  var sessionCount = 1;
+  for (var i = sorted.length - 1; i > 0; i--) {
+    var prevEnd = sorted[i - 1].startedAt + (sorted[i - 1].durationMs || 0);
+    if (sorted[i].startedAt - prevEnd <= RESET_THRESHOLD_MS) {
+      sessionCount++;
+    } else {
+      break;
+    }
+  }
+  return Math.min(sessionCount, LADDER_DURATIONS_MS.length - 1);
+}
+
 function getNextDurationInfo(host, callback) {
   getOverrideHistory(function (history) {
     var entries = getTodayHostEntries(history, host);
-    var idx = Math.min(entries.length, LADDER_DURATIONS_MS.length - 1);
+    // Rung now reflects the current session (was: entries.length over the whole day).
+    var idx = sessionRungIndex(entries, Date.now());
     var ladderDuration = LADDER_DURATIONS_MS[idx];
+    // Daily cap still sums ALL of today's entries for the host (unchanged).
     var totalUsed = entries.reduce(function (s, e) { return s + (e.durationMs || 0); }, 0);
     var remaining = DAILY_CAP_MS - totalUsed;
     var capReached = remaining <= 0;

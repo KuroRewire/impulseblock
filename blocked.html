@@ -100,18 +100,20 @@
     body[data-theme="bold"] .top-rule { display: flex; justify-content: space-between; align-items: center; font-family: 'Archivo', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; border-bottom: 2px solid #0a0a0a; padding-bottom: 10px; margin-bottom: 36px; }
     body[data-theme="bold"] .top-rule .accent-dot { width: 9px; height: 9px; border-radius: 50%; background: #e8482b; display: inline-block; margin-right: 7px; vertical-align: middle; }
     body[data-theme="bold"] .mid { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 40px; align-items: end; }
-    body[data-theme="bold"] .headline { font-family: 'Archivo Narrow', sans-serif; font-weight: 800; font-size: clamp(56px,11vw,150px); line-height: 0.86; letter-spacing: -0.02em; text-transform: uppercase; }
+    body[data-theme="bold"] .headline { font-family: 'Archivo Narrow', sans-serif; font-weight: 800; font-size: clamp(52px,11vw,96px); line-height: 0.86; letter-spacing: -0.02em; text-transform: uppercase; }
     body[data-theme="bold"] .headline .q { color: #e8482b; }
     body[data-theme="bold"] .domain-chip { font-family: 'Archivo', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 18px; }
     body[data-theme="bold"] .domain-chip .dot { background: #e8482b; width: 8px; height: 8px; }
     body[data-theme="bold"] .sub { font-family: 'Archivo', sans-serif; font-size: 17px; line-height: 1.4; color: #333; max-width: 280px; }
-    body[data-theme="bold"] .cheer { width: 100%; max-width: 220px; margin: 26px 0 0; background: #ececec; border: 2px solid #0a0a0a; }
+    body[data-theme="bold"] .cheer { width: 100%; max-width: 300px; margin: 26px 0 0; background: #ececec; border: 2px solid #0a0a0a; }
     body[data-theme="bold"] .insight { font-family: 'Archivo', sans-serif; font-size: 14px; color: #888; margin-top: 14px; }
     body[data-theme="bold"] .details > summary { font-family: 'Archivo', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #0a0a0a; opacity: 1; }
     body[data-theme="bold"] .history-bar { background: #e0e0e0; }
     body[data-theme="bold"] .history-bar-fill { background: #0a0a0a; }
     body[data-theme="bold"] .actions { margin-top: 40px; gap: 0; border-top: 2px solid #0a0a0a; }
-    body[data-theme="bold"] .btn { flex: 1; background: #fafaf8; color: #0a0a0a; font-family: 'Archivo Narrow', sans-serif; font-weight: 800; text-transform: uppercase; font-size: clamp(20px,3vw,30px); padding: 22px 24px; text-align: left; }
+    /* POLISH: smaller font + tighter side padding helps long JA labels (e.g. 今日は十分見ました)
+       fit; wrapping stays enabled so they wrap cleanly inside the button instead of overflowing. */
+    body[data-theme="bold"] .btn { flex: 1; background: #fafaf8; color: #0a0a0a; font-family: 'Archivo Narrow', sans-serif; font-weight: 800; text-transform: uppercase; font-size: clamp(16px,2.4vw,26px); line-height: 1.1; padding: 22px 18px; text-align: left; }
     body[data-theme="bold"] .btn + .btn { border-left: 2px solid #0a0a0a; }
     body[data-theme="bold"] #btn-no:hover { background: #0a0a0a; color: #fafaf8; }
     body[data-theme="bold"] #btn-yes:hover { background: #e8482b; color: #fff; }
@@ -134,7 +136,7 @@
     body[data-theme="focus"] .domain-chip { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #5b6677; margin-top: 20px; }
     body[data-theme="focus"] .domain-chip .dot { background: #3d7dff; }
     body[data-theme="focus"] .sub { font-family: 'JetBrains Mono', monospace; font-size: clamp(13px,1.6vw,16px); color: #8a96a8; margin-top: 18px; line-height: 1.7; }
-    body[data-theme="focus"] .cheer { width: 180px; margin: 30px 0 0; border-radius: 4px; background: #0e131b; border: 1px solid #1f2836; }
+    body[data-theme="focus"] .cheer { width: 240px; max-width: 100%; margin: 30px 0 0; border-radius: 4px; background: #0e131b; border: 1px solid #1f2836; }
     body[data-theme="focus"] .insight { font-family: 'JetBrains Mono', monospace; color: #5b6677; font-size: 13px; margin-top: 16px; }
     body[data-theme="focus"] .details > summary { font-family: 'JetBrains Mono', monospace; color: #3d7dff; text-transform: uppercase; letter-spacing: 0.06em; }
     body[data-theme="focus"] .history-title, body[data-theme="focus"] .stats { font-family: 'JetBrains Mono', monospace; }
@@ -157,7 +159,7 @@
     body[data-theme="calm"] .headline { font-family: 'Nunito', sans-serif; font-size: clamp(38px,7vw,60px); font-weight: 800; letter-spacing: -0.02em; color: #3a2f2a; }
     body[data-theme="calm"] .headline .q { color: #ff8a4c; }
     body[data-theme="calm"] .sub { font-family: 'Nunito', sans-serif; font-size: clamp(15px,2.4vw,19px); color: #8a766c; margin-top: 14px; font-weight: 600; }
-    body[data-theme="calm"] .cheer { width: 100%; max-width: 280px; margin: 28px auto 0; border-radius: 28px; background: #fff; border: 1px solid rgba(180,140,110,0.18); box-shadow: 0 18px 50px rgba(180,120,80,0.14); }
+    body[data-theme="calm"] .cheer { width: 100%; max-width: 360px; margin: 28px auto 0; border-radius: 28px; background: #fff; border: 1px solid rgba(180,140,110,0.18); box-shadow: 0 18px 50px rgba(180,120,80,0.14); }
     body[data-theme="calm"] .insight { font-family: 'Nunito', sans-serif; font-size: 15px; color: #a8928a; margin-top: 18px; font-weight: 600; }
     body[data-theme="calm"] .details { text-align: center; }
     body[data-theme="calm"] .details > summary { font-family: 'Nunito', sans-serif; font-weight: 700; color: #b08968; justify-content: center; }
@@ -180,13 +182,15 @@
     body[data-theme="minimal"] .domain-chip .dot { background: #1a1a1a; width: 6px; height: 6px; }
     body[data-theme="minimal"] .headline { font-family: 'Space Grotesk', sans-serif; font-size: clamp(26px,4.4vw,38px); font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; }
     body[data-theme="minimal"] .sub { display: none; }
-    body[data-theme="minimal"] .cheer { width: 200px; margin: 34px auto; border-radius: 16px; background: #f6f6f6; border: 1px solid #ededed; }
+    body[data-theme="minimal"] .cheer { width: 100%; max-width: 340px; margin: 34px auto; border-radius: 16px; background: #f6f6f6; border: 1px solid #ededed; }
     body[data-theme="minimal"] .insight { font-family: 'Space Grotesk', sans-serif; font-size: 14px; color: #9a9a9a; margin: 0 0 30px; }
     body[data-theme="minimal"] .details { text-align: center; }
     body[data-theme="minimal"] .details > summary { font-family: 'Space Grotesk', sans-serif; color: #888; justify-content: center; }
     body[data-theme="minimal"] .history-bar { background: #eee; }
     body[data-theme="minimal"] .history-bar-fill { background: #4f46e5; }
-    body[data-theme="minimal"] .actions { justify-content: center; }
+    /* F2: minimal had no gap below the collapsed <details>; the other themes already
+       set 28–40px here. .actions is flex (no margin-collapse), so set it per-theme. */
+    body[data-theme="minimal"] .actions { justify-content: center; margin-top: 30px; }
     body[data-theme="minimal"] .btn { border-radius: 12px; font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 500; padding: 13px 26px; }
     body[data-theme="minimal"] #btn-yes { background: #fff; color: #555; border: 1px solid #e2e2e2; }
     body[data-theme="minimal"] #btn-yes:hover { background: #f7f7f7; }
@@ -204,7 +208,7 @@
     body[data-theme="zen"] .domain-chip .dot { background: #8a7a64; width: 5px; height: 5px; }
     body[data-theme="zen"] .headline { font-family: 'Fraunces', serif; font-weight: 400; font-style: italic; font-size: clamp(28px,5vw,48px); line-height: 1.28; color: #2b2622; }
     body[data-theme="zen"] .sub { font-family: 'Inter', sans-serif; font-size: clamp(13px,1.8vw,16px); color: #8a7d6c; margin-top: 22px; line-height: 1.7; }
-    body[data-theme="zen"] .cheer { width: 100%; max-width: 220px; margin: 34px auto 0; border-radius: 14px; background: #efe9dd; border: 1px solid rgba(120,105,80,0.2); }
+    body[data-theme="zen"] .cheer { width: 100%; max-width: 360px; margin: 34px auto 0; border-radius: 14px; background: #efe9dd; border: 1px solid rgba(120,105,80,0.2); }
     body[data-theme="zen"] .insight { font-family: 'Fraunces', serif; font-style: italic; font-size: 16px; color: #9a8d7a; margin-top: 24px; }
     body[data-theme="zen"] .details { text-align: center; }
     body[data-theme="zen"] .details > summary { font-family: 'Inter', sans-serif; color: #8a7d6c; justify-content: center; }
@@ -254,7 +258,7 @@
           </div>
 
           <!-- ▼ details: review data (7-day graph, bursts, blocklist) -->
-          <details class="details">
+          <details class="details" open>
             <summary data-i18n="impulse_log"></summary>
             <div class="details-body">
               <p class="history-title" data-i18n="impulse_log_7d"></p>

@@ -50,5 +50,10 @@
   "allow_15min": { "message": "Allow for 15 min" },
   "allow_20min": { "message": "Allow for 20 min" },
   "daily_cap_reached": { "message": "Enough for today" },
-  "recent_bursts": { "message": "Recent bursts" }
+  "recent_bursts": { "message": "Recent bursts" },
+  "popup_theme_label": { "message": "Block screen theme" },
+  "popup_image_label": { "message": "Pause image" },
+  "popup_image_reset": { "message": "Reset to default" },
+  "popup_image_too_large": { "message": "Image too large, please pick a smaller one" },
+  "popup_image_unsupported": { "message": "Couldn't read that image, please pick another" }
 }

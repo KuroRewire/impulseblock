@@ -50,5 +50,10 @@
   "allow_15min": { "message": "15分だけ許可" },
   "allow_20min": { "message": "20分だけ許可" },
   "daily_cap_reached": { "message": "今日は十分見ました" },
-  "recent_bursts": { "message": "直近のbursts" }
+  "recent_bursts": { "message": "直近のbursts" },
+  "popup_theme_label": { "message": "ブロック画面のテーマ" },
+  "popup_image_label": { "message": "停止画面の画像" },
+  "popup_image_reset": { "message": "デフォルトに戻す" },
+  "popup_image_too_large": { "message": "画像が大きすぎます。小さいものを選んでください" },
+  "popup_image_unsupported": { "message": "この画像を読み込めませんでした。別の画像を選んでください" }
 }
