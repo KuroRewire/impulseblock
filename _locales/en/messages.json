@@ -55,5 +55,26 @@
   "popup_image_label": { "message": "Pause image" },
   "popup_image_reset": { "message": "Reset to default" },
   "popup_image_too_large": { "message": "Image too large, please pick a smaller one" },
-  "popup_image_unsupported": { "message": "Couldn't read that image, please pick another" }
+  "popup_image_unsupported": { "message": "Couldn't read that image, please pick another" },
+  "popup_cap_title": { "message": "You've reached 5 blocked sites" },
+  "popup_cap_body": { "message": "Free covers up to 5 sites. You can replace one, keep your current set, or unlock unlimited with Pro." },
+  "popup_cap_replace": { "message": "Replace a site" },
+  "popup_cap_keep": { "message": "Keep current sites" },
+  "popup_cap_upgrade": { "message": "Unlock Pro — $$19" },
+  "popup_cap_replace_hint": { "message": "Pick a site to remove — the new one takes its place:" },
+  "popup_plan_unlimited": { "message": "Unlimited" },
+  "popup_plan_pro": { "message": "Pro · unlimited" },
+  "popup_plan_free": {
+    "message": "Free · $count$/$limit$ sites",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "limit": { "content": "$2" }
+    }
+  },
+  "popup_verify_title": { "message": "Couldn't check your plan" },
+  "popup_verify_body": { "message": "Check your connection and try again, restore a purchase, or upgrade." },
+  "popup_verify_retry": { "message": "Try again" },
+  "popup_verify_restore": { "message": "Restore purchase" },
+  "popup_restore_link": { "message": "Already purchased? Restore" },
+  "popup_status_save_error": { "message": "Couldn't save — please try again" }
 }

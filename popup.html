@@ -61,16 +61,65 @@
       background: #fff; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; }
     .btn-reset:hover { background: var(--bg-soft); color: var(--ink); }
     #pause-image-status { font-size: 11px; color: #c0392b; margin: 6px 0 0 0; }
+
+    /* subtle, factual plan indicator (Free · N/5 · / Pro · unlimited / Unlimited) */
+    .plan-status { font-size: 11px; color: var(--muted); margin: 6px 0 0 0; }
+    /* subtle restore-purchase link (FIX 5) */
+    .restore-link { display: inline-block; margin-top: 4px; font-size: 11px; color: var(--muted); text-decoration: underline; cursor: pointer; }
+    .restore-link:hover { color: var(--ink); }
+
+    /* free-cap dialog — neutral, three equal options, no dark pattern */
+    .cap-dialog { margin: 10px 0 0 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-soft); }
+    .cap-dialog .cap-title { font-size: 13px; font-weight: 700; margin: 0 0 6px 0; color: var(--ink); }
+    .cap-dialog .cap-body { font-size: 12px; line-height: 1.5; margin: 0 0 10px 0; color: var(--muted); }
+    .cap-actions { display: flex; flex-direction: column; gap: 6px; }
+    .cap-actions button { width: 100%; padding: 8px 10px; font-size: 12px; font-weight: 600; border-radius: 7px;
+      background: #fff; color: var(--ink); border: 1px solid var(--line); }
+    .cap-actions button:hover { background: var(--bg-soft); border-color: #d0d2da; }
+    .cap-replace-hint { font-size: 11px; color: var(--muted); margin: 12px 0 6px 0; }
+    .cap-replace-list { display: flex; flex-direction: column; gap: 4px; }
+    .cap-replace-list button { width: 100%; text-align: left; padding: 6px 8px; font-size: 12px; font-weight: 500;
+      background: #fff; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; word-break: break-all; }
+    .cap-replace-list button:hover { background: var(--bg-soft); border-color: var(--accent); }
   </style>
 </head>
 <body>
   <h2 data-i18n="extName"></h2>
   <button id="block-btn" data-i18n="popup_block_this_site"></button>
   <p id="status"></p>
+
+  <!-- Free 5-site cap dialog: hidden until a free, non-grandfathered, non-Pro user adds a 6th
+       site. Three EQUAL, neutral options (no dark pattern, no guilt). Populated by popup-i18n. -->
+  <div id="cap-dialog" class="cap-dialog" hidden>
+    <p class="cap-title" data-i18n="popup_cap_title"></p>
+    <p class="cap-body" data-i18n="popup_cap_body"></p>
+    <div class="cap-actions">
+      <button type="button" id="cap-replace" data-i18n="popup_cap_replace"></button>
+      <button type="button" id="cap-keep" data-i18n="popup_cap_keep"></button>
+      <button type="button" id="cap-upgrade" data-i18n="popup_cap_upgrade"></button>
+    </div>
+    <p class="cap-replace-hint" id="cap-replace-hint" data-i18n="popup_cap_replace_hint" hidden></p>
+    <div id="cap-replace-list" class="cap-replace-list" hidden></div>
+  </div>
+
+  <!-- "Couldn't verify your plan" dialog (FIX 1b): shown when entitlement can't be confirmed at the
+       6th site and the user isn't a known prior purchaser. Neutral: retry / restore / upgrade. -->
+  <div id="verify-dialog" class="cap-dialog" hidden>
+    <p class="cap-title" data-i18n="popup_verify_title"></p>
+    <p class="cap-body" data-i18n="popup_verify_body"></p>
+    <div class="cap-actions">
+      <button type="button" id="verify-retry" data-i18n="popup_verify_retry"></button>
+      <button type="button" id="verify-restore" data-i18n="popup_verify_restore"></button>
+      <button type="button" id="verify-upgrade" data-i18n="popup_cap_upgrade"></button>
+    </div>
+  </div>
+
   <button id="force-block-btn" data-i18n="popup_force_block_tab"></button>
 
   <p class="section-title" data-i18n="blocked_sites"></p>
   <div id="blocked-list"></div>
+  <p id="plan-status" class="plan-status"></p>
+  <a href="#" id="restore-link" class="restore-link" data-i18n="popup_restore_link"></a>
 
   <!-- F3: block-screen theme picker (populated by popup.js) -->
   <p class="section-title" data-i18n="popup_theme_label"></p>
@@ -89,6 +138,7 @@
 
   <script src="block-core.js"></script>
   <script src="popup-i18n.js"></script>
+  <script src="ExtPay.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

@@ -55,5 +55,26 @@
   "popup_image_label": { "message": "停止画面の画像" },
   "popup_image_reset": { "message": "デフォルトに戻す" },
   "popup_image_too_large": { "message": "画像が大きすぎます。小さいものを選んでください" },
-  "popup_image_unsupported": { "message": "この画像を読み込めませんでした。別の画像を選んでください" }
+  "popup_image_unsupported": { "message": "この画像を読み込めませんでした。別の画像を選んでください" },
+  "popup_cap_title": { "message": "ブロック中のサイトが5件になりました" },
+  "popup_cap_body": { "message": "無料プランは5件までです。1件入れ替える、今のままにする、またはProで無制限にできます。" },
+  "popup_cap_replace": { "message": "サイトを入れ替える" },
+  "popup_cap_keep": { "message": "今のままにする" },
+  "popup_cap_upgrade": { "message": "Proで無制限にする — $$19" },
+  "popup_cap_replace_hint": { "message": "削除するサイトを選ぶと、その枠に新しいサイトが追加されます：" },
+  "popup_plan_unlimited": { "message": "無制限" },
+  "popup_plan_pro": { "message": "Pro · 無制限" },
+  "popup_plan_free": {
+    "message": "無料 · $count$/$limit$ 件",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "limit": { "content": "$2" }
+    }
+  },
+  "popup_verify_title": { "message": "プランを確認できませんでした" },
+  "popup_verify_body": { "message": "接続を確認してもう一度試すか、購入を復元するか、アップグレードしてください。" },
+  "popup_verify_retry": { "message": "もう一度試す" },
+  "popup_verify_restore": { "message": "購入を復元" },
+  "popup_restore_link": { "message": "購入済みの方はこちら（復元）" },
+  "popup_status_save_error": { "message": "保存できませんでした。もう一度お試しください" }
 }

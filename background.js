@@ -1,3 +1,21 @@
+// ExtPay (ExtensionPay): initialize at the very top so the background service worker
+// registers its payment handlers before anything else. startBackground() is called
+// exactly once, here only. ExtPay only needs `storage` + the extensionpay.com content
+// script (added in manifest.json) — no scary permission warnings.
+try {
+  importScripts('ExtPay.js');
+  var extpay = ExtPay('impulseblock');
+  extpay.startBackground();
+  // FIX D: persist everPaid:true the moment ExtPay observes a payment, so offline grace no longer
+  // depends on the popup re-checking getUser(). Registered here (extpay is in scope); not a 2nd start.
+  extpay.onPaid.addListener(function () {
+    chrome.storage.local.set({ everPaid: true });
+  });
+} catch (e) {
+  // Mission first: if the payment library fails to load/init, core blocking must still work.
+  console.warn('ImpulseBlock: ExtPay init failed; continuing without payment.', e);
+}
+
 console.log("ImpulseBlock background loaded", new Date().toISOString());
 importScripts('block-core.js');
 
@@ -30,6 +48,16 @@ function setTempAllowed(map, callback) {
 
 function hostMatches(hostname, allowedKey) {
   return hostname === allowedKey || hostname.endsWith('.' + allowedKey);
+}
+
+// FIX A: ExtPay's payment/restore pages live on extensionpay.com. They are payment INFRASTRUCTURE,
+// not a site the user is avoiding — never block/redirect them to the pause screen, even if the user
+// has extensionpay.com (or a parent) in their block list. Otherwise openPaymentPage()/openLoginPage()
+// would be redirected and the user couldn't pay or restore. Precise suffix match: extensionpay.com
+// and *.extensionpay.com only (NOT evilextensionpay.com or extensionpay.com.evil.com).
+var EXTPAY_HOST = 'extensionpay.com';
+function isExtPayHost(hostname) {
+  return !!hostname && (hostname === EXTPAY_HOST || hostname.endsWith('.' + EXTPAY_HOST));
 }
 
 function isHostTempAllowed(hostname, map) {
@@ -186,6 +214,7 @@ function redirectMatchingTabsToBlocked(host) {
       var u;
       try { u = new URL(tab.url); } catch (e) { return; }
       if (!u.hostname || !hostMatches(u.hostname, host)) return;
+      if (isExtPayHost(u.hostname)) return; // FIX A: never redirect ExtPay pages
       PDBlockCore.isHostBlocked(u.hostname, function (blocked) {
         if (!blocked) return;
         var redirectUrl = chrome.runtime.getURL('blocked.html') + '?url=' + encodeURIComponent(tab.url);
@@ -226,8 +255,36 @@ chrome.runtime.onStartup.addListener(function () {
   pruneOldOverrideHistory();
 });
 
-chrome.runtime.onInstalled.addListener(function () {
+// FIX B: write the grandfather flag DURABLY — verify it landed (re-read) and retry once on a transient
+// storage error / mismatch. This guarantees a fresh install reliably persists grandfathered:false, so
+// the popup never has to (and never does) re-derive grandfather from blockedHosts — a NEW user can
+// never become grandfathered:true even if a write transiently fails.
+function writeGrandfathered(value, retry) {
+  chrome.storage.local.set({ grandfathered: value }, function () {
+    if (chrome.runtime.lastError) { if (retry) writeGrandfathered(value, false); return; }
+    chrome.storage.local.get(['grandfathered'], function (res) {
+      if (chrome.runtime.lastError) { if (retry) writeGrandfathered(value, false); return; }
+      if (res.grandfathered !== value && retry) writeGrandfathered(value, false);
+    });
+  });
+}
+
+chrome.runtime.onInstalled.addListener(function (details) {
   pruneOldOverrideHistory();
+  // FIX 2 + FIX B: a brand-new INSTALL is NEVER grandfathered — write false DURABLY (verify+retry).
+  // An UPDATE grandfathers pre-cap existing users once (they already have blocked sites). Never flip
+  // an already-set flag.
+  if (details && details.reason === 'install') {
+    writeGrandfathered(false, true);
+    return;
+  }
+  chrome.storage.local.get(['blockedHosts', 'grandfathered'], function (res) {
+    if (chrome.runtime.lastError) return; // FIX 4: storage error → leave unset; the popup stays safe (caps)
+    if (res.grandfathered === undefined) {
+      var hosts = res.blockedHosts || [];
+      writeGrandfathered(hosts.length >= 1, true);
+    }
+  });
 });
 
 chrome.alarms.onAlarm.addListener(function (alarm) {
@@ -283,7 +340,13 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   if (msg.type === 'TRIGGER_SUGGEST_BLOCK') {
     var ahost = msg.hostname;
     if (ahost) {
-      PDBlockCore.addBlockedHost(ahost, function () {});
+      // FIX 3: no sender for this exists in the repo (dead path), but route it through the guarded
+      // add so it can never bypass the free cap. Grandfathered users keep unlimited; others cap at 5.
+      chrome.storage.local.get(['grandfathered', 'everPaid'], function (res) {
+        // grandfathered OR a known prior payer → unlimited; otherwise respect the 5-site cap.
+        var unlimited = !!(res && (res.grandfathered === true || res.everPaid === true));
+        PDBlockCore.addBlockedHostIfAllowed(ahost, unlimited ? Infinity : 5, function () {});
+      });
     }
     return;
   }
@@ -303,6 +366,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
         var urlObj = new URL(fbUrl);
         var hostForCheck = urlObj.hostname;
         if (!hostForCheck) return;
+        if (isExtPayHost(hostForCheck)) return; // FIX A: never force-block ExtPay pages
         PDBlockCore.isHostBlocked(hostForCheck, function (blocked) {
           if (!blocked) return;
           var redirectUrl = chrome.runtime.getURL('blocked.html') + '?url=' + encodeURIComponent(fbUrl);
@@ -333,6 +397,7 @@ chrome.webNavigation.onCommitted.addListener(function (details) {
   }
   var hostname = url.hostname;
   if (!hostname) return;
+  if (isExtPayHost(hostname)) return; // FIX A: never block ExtPay's payment/restore pages
 
   getTempAllowed(function (map) {
     if (isHostTempAllowed(hostname, map)) return;
