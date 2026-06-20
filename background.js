@@ -70,6 +70,22 @@ function isHostTempAllowed(hostname, map) {
   return false;
 }
 
+// SHARE guard (Task A spec②): suffix-aware lookup of an ACTIVE temp-allow session for a
+// host — returns the latest (max) expiry among matching keys that is still in the future,
+// else 0. Mirrors overlay.js findExpiresFor + the `> now` check so a second tab (or a
+// re-click while the timer is still live) joins the in-progress session instead of starting
+// a new grant. Read-only over the same `tempAllowedHosts` map; never advances the ladder.
+function findActiveExpiry(map, hostname) {
+  if (!hostname || !map) return 0;
+  var now = Date.now();
+  var best = 0;
+  for (var key in map) {
+    if (!Object.prototype.hasOwnProperty.call(map, key)) continue;
+    if (map[key] > now && hostMatches(hostname, key) && map[key] > best) best = map[key];
+  }
+  return best;
+}
+
 function alarmName(host, expiresAt) {
   return ALARM_PREFIX + host + ':' + String(expiresAt);
 }
@@ -314,14 +330,24 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
       sendResponse({ ok: false, reason: 'invalid' });
       return;
     }
-    getNextDurationInfo(hostname, function (info) {
-      if (info.capReached || info.durationMs <= 0) {
-        sendResponse({ ok: false, reason: 'daily_cap' });
+    getTempAllowed(function (map) {
+      // SHARE (Task A spec②): if this host already has an ACTIVE session, this tab joins it
+      // within the remaining time. Do NOT advance the ladder, consume the daily cap, record
+      // an override, or reset the alarm — the existing grant is left untouched. Note that
+      // getNextDurationInfo and recordOverrideStart are intentionally NOT reached on this path.
+      var activeExpiry = findActiveExpiry(map, hostname);
+      if (activeExpiry) {
+        sendResponse({ ok: true, shared: true, expiresAt: activeExpiry, durationMs: activeExpiry - Date.now() });
         return;
       }
-      var ttlMs = info.durationMs;
-      var expiresAt = Date.now() + ttlMs;
-      getTempAllowed(function (map) {
+      // No active session (first unblock, or after the timer expired): original new-grant path.
+      getNextDurationInfo(hostname, function (info) {
+        if (info.capReached || info.durationMs <= 0) {
+          sendResponse({ ok: false, reason: 'daily_cap' });
+          return;
+        }
+        var ttlMs = info.durationMs;
+        var expiresAt = Date.now() + ttlMs;
         if (map[hostname]) {
           chrome.alarms.clear(alarmName(hostname, map[hostname]));
         }
@@ -329,7 +355,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
         setTempAllowed(map, function () {
           chrome.alarms.create(alarmName(hostname, expiresAt), { when: expiresAt });
           recordOverrideStart(hostname, ttlMs, function () {
-            sendResponse({ ok: true, expiresAt: expiresAt, durationMs: ttlMs });
+            sendResponse({ ok: true, shared: false, expiresAt: expiresAt, durationMs: ttlMs });
           });
         });
       });

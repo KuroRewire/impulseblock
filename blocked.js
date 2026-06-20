@@ -365,6 +365,14 @@
             refreshYesButton();
             return;
           }
+          // SHARE (Task A spec②): joined an already-active session → this is NOT a new open.
+          // Don't increment openCountByDate (no double-count); just let the tab through within
+          // the remaining time. The ladder / daily cap / override were already skipped in the
+          // background, so nothing here should advance either.
+          if (res.shared === true) {
+            chrome.tabs.update(tab.id, { url: originalUrl });
+            return;
+          }
           var today = getTodayKey();
           chrome.storage.local.get(['openCountByDate', 'lastOpenedAt'], function (data) {
             var counts = data.openCountByDate || {};
