@@ -12,6 +12,7 @@
   },
   "permissions": ["alarms", "storage", "tabs", "webNavigation"],
   "host_permissions": ["<all_urls>"],
+  "incognito": "split",
   "action": {
     "default_popup": "popup.html",
     "default_title": "__MSG_extName__",
