@@ -5,86 +5,129 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ImpulseBlock</title>
   <style>
-    /* D: lightweight popup polish — system fonts only, no external resources. */
+    /* Minimal popup — matches the stop screen (indigo, breathing mark, pill buttons). RESTYLE ONLY:
+       every existing id and every JS-assigned class name (.blocked-item / .blocked-host / .btn-small /
+       .theme-swatch / .dot / .selected) is preserved; popup.js is unchanged. Fonts are the same bundled
+       woff2 the stop screen uses (no external resources). */
+    @font-face { font-family:'Inter'; font-style:normal; font-weight:400; font-display:swap; src:url('assets/fonts/inter-400.woff2') format('woff2'); }
+    @font-face { font-family:'Inter'; font-style:normal; font-weight:500; font-display:swap; src:url('assets/fonts/inter-500.woff2') format('woff2'); }
+    @font-face { font-family:'Space Grotesk'; font-style:normal; font-weight:400; font-display:swap; src:url('assets/fonts/space-grotesk-400.woff2') format('woff2'); }
+    @font-face { font-family:'Space Grotesk'; font-style:normal; font-weight:500; font-display:swap; src:url('assets/fonts/space-grotesk-500.woff2') format('woff2'); }
+
     :root {
-      --accent: #4f46e5; --accent-hover: #4338ca;
-      --ink: #1f2330; --muted: #6b7280;
-      --line: #e6e7eb; --line-soft: #f1f1f4; --bg-soft: #f7f7f9;
+      --indigo:#4f46e5; --indigo-600:#4338ca; --indigo-300:#a5b4fc;
+      --indigo-100:#e0e7ff; --indigo-050:#eef2ff;
+      --ink:#1e1b4b; --ink-soft:#6b6b85; --line:#ebe9f5; --paper:#fbfbff; --white:#ffffff;
     }
     * { box-sizing: border-box; }
     body {
-      width: 280px; padding: 14px; margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      color: var(--ink); background: #fff; -webkit-font-smoothing: antialiased;
+      width: 280px; margin: 0; padding: 18px 16px 20px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--ink); -webkit-font-smoothing: antialiased;
+      background: radial-gradient(120% 60% at 50% 0%, var(--indigo-050) 0%, var(--paper) 46%);
     }
-    h2 { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 10px 0; }
 
-    /* button base + main actions */
-    button { font-family: inherit; cursor: pointer; border: 1px solid transparent; border-radius: 8px;
-      transition: background .15s ease, border-color .15s ease, color .15s ease; }
-    #block-btn { width: 100%; padding: 10px 12px; font-size: 14px; font-weight: 600; background: var(--accent); color: #fff; }
-    #block-btn:hover { background: var(--accent-hover); }
-    #force-block-btn { width: 100%; padding: 9px 12px; font-size: 13px; font-weight: 600; margin-top: 8px;
-      background: #fff; color: var(--ink); border-color: var(--line); }
-    #force-block-btn:hover { background: var(--bg-soft); border-color: #d6d8de; }
-    #status { font-size: 12px; color: var(--muted); margin: 8px 0 0 0; }
+    /* header: breathing mark + wordmark (the existing <h2 data-i18n="extName">) */
+    .pop__head { display: flex; align-items: center; gap: 9px; margin-bottom: 16px; }
+    .mark { width: 26px; height: 26px; flex: none; }
+    .mark svg { width: 100%; height: 100%; display: block; overflow: visible; }
+    .mark .ring { transform-box: fill-box; transform-origin: center; animation: ringB 5.6s ease-in-out infinite; }
+    .mark .bar { transform-box: fill-box; transform-origin: center; animation: barB 5.6s ease-in-out infinite; }
+    .mark .bar.b2 { animation-delay: .14s; }
+    @keyframes ringB { 0%,100%{ transform: scale(.94);} 50%{ transform: scale(1);} }
+    @keyframes barB { 0%,100%{ transform: scaleY(.84); opacity:.82;} 50%{ transform: scaleY(1.04); opacity:1;} }
+    h2 { font-size: 16px; font-weight: 500; letter-spacing: -0.01em; margin: 0; color: var(--ink); }
 
-    .section-title { margin: 16px 0 6px 0; font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
-      text-transform: uppercase; color: var(--muted); }
+    /* primary + secondary actions (pill) */
+    button { font-family: inherit; cursor: pointer; }
+    #block-btn { width: 100%; font-size: 14px; font-weight: 500; border: 1.5px solid transparent; border-radius: 999px;
+      padding: 11px 16px; background: var(--indigo); color: #fff; box-shadow: 0 6px 16px rgba(79,70,229,.24);
+      transition: transform .14s ease, box-shadow .2s ease, background .2s ease; }
+    #block-btn:hover { transform: translateY(-1px); box-shadow: 0 9px 20px rgba(79,70,229,.30); }
+    #force-block-btn { width: 100%; font-size: 14px; font-weight: 500; border: 1.5px solid var(--indigo-100); border-radius: 999px;
+      padding: 11px 16px; margin-top: 2px; background: transparent; color: var(--indigo-600); transition: background .2s ease; }
+    #force-block-btn:hover { background: rgba(79,70,229,.06); }
+    #status { font-size: 11.5px; color: var(--ink-soft); text-align: center; margin: 2px 0 0; min-height: 10px; }
 
-    #blocked-list { max-height: 150px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; padding: 2px 8px; }
-    .blocked-item { display: flex; align-items: center; justify-content: space-between; font-size: 12px;
-      padding: 5px 0; border-bottom: 1px solid var(--line-soft); }
-    .blocked-item:last-child { border-bottom: none; }
-    .blocked-host { flex: 1; margin-right: 8px; word-break: break-all; color: var(--ink); }
-    .btn-small { width: auto; padding: 3px 9px; font-size: 11px; font-weight: 600;
-      background: #fff; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; }
-    .btn-small:hover { background: var(--bg-soft); color: var(--ink); }
+    /* section titles (the three <p class="section-title">) */
+    .section-title { font-family: 'Space Grotesk', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.13em;
+      text-transform: uppercase; color: var(--ink-soft); margin: 16px 0 8px; }
 
-    /* F3: block-screen theme picker */
-    .theme-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
-    .theme-swatch { width: auto; flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 10px; font-size: 12px; line-height: 1; border: 1px solid var(--line); border-radius: 8px;
-      background: #fff; color: var(--ink); }
-    .theme-swatch:hover { background: var(--bg-soft); border-color: #d0d2da; }
-    .theme-swatch .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: 0 0 auto;
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
-    .theme-swatch.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); font-weight: 600; }
+    /* blocked list → cards (JS builds .blocked-item / .blocked-host / .btn-small) */
+    #blocked-list { display: flex; flex-direction: column; gap: 5px; max-height: 180px; overflow-y: auto; }
+    .blocked-item { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 6px 11px; }
+    .blocked-host { flex: 1; font-size: 13px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn-small { font-family: 'Space Grotesk', monospace; font-size: 11px; letter-spacing: 0.02em; color: var(--ink-soft);
+      background: transparent; border: none; cursor: pointer; padding: 3px 7px; border-radius: 7px; flex: none; }
+    .btn-small:hover { background: var(--indigo-050); color: var(--indigo-600); }
 
-    /* F4: pause image */
-    .image-row { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
-    .image-preview { width: 56px; height: 56px; border-radius: 8px; border: 1px solid var(--line);
-      object-fit: cover; background: var(--bg-soft); flex: 0 0 auto; }
-    .image-controls { flex: 1; min-width: 0; }
-    .image-controls input[type="file"] { width: 100%; font-size: 11px; color: var(--muted); }
-    .btn-reset { width: auto; padding: 5px 10px; font-size: 11px; font-weight: 600; margin-top: 8px;
-      background: #fff; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; }
-    .btn-reset:hover { background: var(--bg-soft); color: var(--ink); }
-    #pause-image-status { font-size: 11px; color: #c0392b; margin: 6px 0 0 0; }
+    /* plan box (wraps #plan-status + #restore-link) */
+    .plan { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 11px;
+      padding: 9px 12px; background: var(--indigo-050); border-radius: 11px; }
+    .plan-status { font-family: 'Space Grotesk', monospace; font-size: 11px; letter-spacing: 0.03em; color: var(--indigo-600); margin: 0; }
+    .restore-link { font-size: 11px; color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--indigo-100); cursor: pointer; }
+    .restore-link:hover { color: var(--indigo-600); }
 
-    /* subtle, factual plan indicator (Free · N/5 · / Pro · unlimited / Unlimited) */
-    .plan-status { font-size: 11px; color: var(--muted); margin: 6px 0 0 0; }
-    /* subtle restore-purchase link (FIX 5) */
-    .restore-link { display: inline-block; margin-top: 4px; font-size: 11px; color: var(--muted); text-decoration: underline; cursor: pointer; }
-    .restore-link:hover { color: var(--ink); }
+    /* theme picker → pills (JS builds .theme-swatch / .dot / .selected) */
+    .theme-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+    .theme-swatch { display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px 7px 9px;
+      border: 1.5px solid var(--line); border-radius: 999px; background: var(--white); color: var(--ink);
+      font-size: 12px; line-height: 1; cursor: pointer; transition: .15s ease; }
+    .theme-swatch:hover { border-color: var(--indigo-300); }
+    .theme-swatch.selected { border-color: var(--indigo); background: var(--indigo-050); font-weight: 500; }
+    .theme-swatch .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
 
-    /* free-cap dialog — neutral, three equal options, no dark pattern */
-    .cap-dialog { margin: 10px 0 0 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-soft); }
-    .cap-dialog .cap-title { font-size: 13px; font-weight: 700; margin: 0 0 6px 0; color: var(--ink); }
-    .cap-dialog .cap-body { font-size: 12px; line-height: 1.5; margin: 0 0 10px 0; color: var(--muted); }
-    .cap-actions { display: flex; flex-direction: column; gap: 6px; }
-    .cap-actions button { width: 100%; padding: 8px 10px; font-size: 12px; font-weight: 600; border-radius: 7px;
-      background: #fff; color: var(--ink); border: 1px solid var(--line); }
-    .cap-actions button:hover { background: var(--bg-soft); border-color: #d0d2da; }
-    .cap-replace-hint { font-size: 11px; color: var(--muted); margin: 12px 0 6px 0; }
-    .cap-replace-list { display: flex; flex-direction: column; gap: 4px; }
-    .cap-replace-list button { width: 100%; text-align: left; padding: 6px 8px; font-size: 12px; font-weight: 500;
-      background: #fff; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; word-break: break-all; }
-    .cap-replace-list button:hover { background: var(--bg-soft); border-color: var(--accent); }
+    /* pause image */
+    .image-row { display: flex; align-items: center; gap: 10px; }
+    .image-preview { width: 46px; height: 46px; flex: none; border-radius: 10px; border: 1px solid var(--line);
+      object-fit: cover; background: var(--indigo-050); }
+    .image-controls { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+    .image-controls input[type="file"] { width: 100%; font-size: 11px; color: var(--ink-soft); }
+    .image-controls input[type="file"]::file-selector-button {
+      font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 500; margin-right: 8px;
+      padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--indigo-100);
+      background: transparent; color: var(--indigo-600); cursor: pointer; transition: .15s ease; }
+    .image-controls input[type="file"]::file-selector-button:hover { background: rgba(79,70,229,.06); }
+    .btn-reset { font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 500; padding: 6px 12px; border-radius: 999px;
+      border: 1.5px solid var(--line); background: transparent; color: var(--ink-soft); cursor: pointer; transition: .15s ease; align-self: flex-start; }
+    .btn-reset:hover { background: var(--indigo-050); color: var(--indigo-600); }
+    #pause-image-status { font-size: 10.5px; color: #c0392b; margin: 7px 0 0; }
+
+    /* monetization dialogs (#cap-dialog / #verify-dialog) — preserved, restyled */
+    .cap-dialog { margin-top: 14px; background: var(--white); border: 1px solid var(--indigo-100); border-radius: 14px;
+      padding: 14px; box-shadow: 0 8px 24px rgba(79,70,229,.10); }
+    .cap-dialog .cap-title { font-size: 13.5px; font-weight: 600; margin: 0 0 5px; color: var(--ink); }
+    .cap-dialog .cap-body { font-size: 12px; line-height: 1.5; margin: 0 0 12px; color: var(--ink-soft); }
+    .cap-actions { display: flex; flex-direction: column; gap: 7px; }
+    .cap-actions button { width: 100%; font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 500; border-radius: 999px;
+      padding: 9px 14px; border: 1.5px solid var(--line); background: transparent; color: var(--ink-soft); transition: .15s ease; }
+    .cap-actions button:hover { background: var(--indigo-050); color: var(--indigo-600); border-color: var(--indigo-100); }
+    /* the upgrade CTA is the indigo primary, lifted to the top of the stack via flex order (no DOM/JS change) */
+    #cap-upgrade, #verify-upgrade { order: -1; background: var(--indigo); color: #fff; border-color: transparent; box-shadow: 0 6px 16px rgba(79,70,229,.24); }
+    #cap-upgrade:hover, #verify-upgrade:hover { background: var(--indigo-600); color: #fff; border-color: transparent; }
+    .cap-replace-hint { font-size: 11px; color: var(--ink-soft); margin: 12px 0 6px; }
+    .cap-replace-list { display: flex; flex-direction: column; gap: 5px; }
+    .cap-replace-list button { width: 100%; text-align: left; font-size: 12px; font-weight: 400; word-break: break-all;
+      padding: 7px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--white); color: var(--ink); transition: .15s ease; }
+    .cap-replace-list button:hover { background: var(--indigo-050); border-color: var(--indigo-300); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mark .ring, .mark .bar { animation: none !important; }
+    }
   </style>
 </head>
 <body>
-  <h2 data-i18n="extName"></h2>
+  <div class="pop__head">
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle class="ring" cx="16" cy="16" r="14.5" stroke="#4f46e5" stroke-width="1.5"/>
+        <rect class="bar b1" x="11.5" y="9.5" width="3" height="13" rx="1.5" fill="#4f46e5"/>
+        <rect class="bar b2" x="17.5" y="9.5" width="3" height="13" rx="1.5" fill="#4f46e5"/>
+      </svg>
+    </div>
+    <h2 data-i18n="extName"></h2>
+  </div>
   <button id="block-btn" data-i18n="popup_block_this_site"></button>
   <p id="status"></p>
 
@@ -118,8 +161,10 @@
 
   <p class="section-title" data-i18n="blocked_sites"></p>
   <div id="blocked-list"></div>
-  <p id="plan-status" class="plan-status"></p>
-  <a href="#" id="restore-link" class="restore-link" data-i18n="popup_restore_link"></a>
+  <div class="plan">
+    <p id="plan-status" class="plan-status"></p>
+    <a href="#" id="restore-link" class="restore-link" data-i18n="popup_restore_link"></a>
+  </div>
 
   <!-- F3: block-screen theme picker (populated by popup.js) -->
   <p class="section-title" data-i18n="popup_theme_label"></p>
