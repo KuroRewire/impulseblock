@@ -83,12 +83,14 @@
     .image-preview { width: 46px; height: 46px; flex: none; border-radius: 10px; border: 1px solid var(--line);
       object-fit: cover; background: var(--indigo-050); }
     .image-controls { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-    .image-controls input[type="file"] { width: 100%; font-size: 11px; color: var(--ink-soft); }
-    .image-controls input[type="file"]::file-selector-button {
-      font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 500; margin-right: 8px;
+    /* native file input hidden; relabeled via the <label class="img-choose"> below (no JS: for= opens the dialog, change still fires on this input) */
+    .image-controls input[type="file"] { display: none; }
+    .img-choose {
+      display: inline-block; align-self: flex-start;
+      font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 500;
       padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--indigo-100);
       background: transparent; color: var(--indigo-600); cursor: pointer; transition: .15s ease; }
-    .image-controls input[type="file"]::file-selector-button:hover { background: rgba(79,70,229,.06); }
+    .img-choose:hover { background: rgba(79,70,229,.06); }
     .btn-reset { font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 500; padding: 6px 12px; border-radius: 999px;
       border: 1.5px solid var(--line); background: transparent; color: var(--ink-soft); cursor: pointer; transition: .15s ease; align-self: flex-start; }
     .btn-reset:hover { background: var(--indigo-050); color: var(--indigo-600); }
@@ -103,8 +105,9 @@
     .cap-actions button { width: 100%; font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 500; border-radius: 999px;
       padding: 9px 14px; border: 1.5px solid var(--line); background: transparent; color: var(--ink-soft); transition: .15s ease; }
     .cap-actions button:hover { background: var(--indigo-050); color: var(--indigo-600); border-color: var(--indigo-100); }
-    /* the upgrade CTA is the indigo primary, lifted to the top of the stack via flex order (no DOM/JS change) */
-    #cap-upgrade, #verify-upgrade { order: -1; background: var(--indigo); color: #fff; border-color: transparent; box-shadow: 0 6px 16px rgba(79,70,229,.24); }
+    /* upgrade CTA = indigo primary in both dialogs. Cap: no order on #cap-upgrade → DOM order Replace→Pro. Verify: upgrade lifted to top via order (unchanged). */
+    #cap-upgrade, #verify-upgrade { background: var(--indigo); color: #fff; border-color: transparent; box-shadow: 0 6px 16px rgba(79,70,229,.24); }
+    #verify-upgrade { order: -1; }
     #cap-upgrade:hover, #verify-upgrade:hover { background: var(--indigo-600); color: #fff; border-color: transparent; }
     .cap-replace-hint { font-size: 11px; color: var(--ink-soft); margin: 12px 0 6px; }
     .cap-replace-list { display: flex; flex-direction: column; gap: 5px; }
@@ -138,7 +141,6 @@
     <p class="cap-body" data-i18n="popup_cap_body"></p>
     <div class="cap-actions">
       <button type="button" id="cap-replace" data-i18n="popup_cap_replace"></button>
-      <button type="button" id="cap-keep" data-i18n="popup_cap_keep"></button>
       <button type="button" id="cap-upgrade" data-i18n="popup_cap_upgrade"></button>
     </div>
     <p class="cap-replace-hint" id="cap-replace-hint" data-i18n="popup_cap_replace_hint" hidden></p>
@@ -176,6 +178,7 @@
     <img id="pause-image-preview" class="image-preview" alt="" />
     <div class="image-controls">
       <input type="file" id="pause-image-input" accept="image/*" />
+      <label for="pause-image-input" class="img-choose" data-i18n="popup_image_choose"></label>
       <button type="button" id="pause-image-reset" class="btn-reset" data-i18n="popup_image_reset"></button>
     </div>
   </div>

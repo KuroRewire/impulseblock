@@ -21,7 +21,7 @@
   "empty_list": { "message": "None" },
   "cheer_alt": { "message": "You got this. Stay focused." },
   "popup_block_this_site": { "message": "Block this site" },
-  "popup_force_block_tab": { "message": "Force block (this tab)" },
+  "popup_force_block_tab": { "message": "Force block" },
   "popup_status_no_url": { "message": "Could not get URL" },
   "popup_status_cant_block": { "message": "This page cannot be blocked" },
   "popup_status_blocked": {
@@ -63,19 +63,20 @@
   "btn_continue": { "message": "Continue" },
   "popup_theme_label": { "message": "Block screen theme" },
   "popup_image_label": { "message": "Pause image" },
-  "popup_image_reset": { "message": "Reset to default" },
+  "popup_image_reset": { "message": "Use default image" },
   "popup_image_too_large": { "message": "Image too large, please pick a smaller one" },
   "popup_image_unsupported": { "message": "Couldn't read that image, please pick another" },
-  "popup_cap_title": { "message": "You've reached 5 blocked sites" },
-  "popup_cap_body": { "message": "Free covers up to 5 sites. You can replace one, keep your current set, or unlock unlimited with Pro." },
+  "popup_image_choose": { "message": "Choose image" },
+  "popup_cap_title": { "message": "Free includes pauses for 5 sites" },
+  "popup_cap_body": { "message": "To add this site, replace one of your current sites or get Pro. Pro adds unlimited sites. $$19 one-time. No subscription." },
   "popup_cap_replace": { "message": "Replace a site" },
   "popup_cap_keep": { "message": "Keep current sites" },
-  "popup_cap_upgrade": { "message": "Unlock Pro — $$19" },
+  "popup_cap_upgrade": { "message": "Get Pro — $$19 one-time" },
   "popup_cap_replace_hint": { "message": "Pick a site to remove — the new one takes its place:" },
   "popup_plan_unlimited": { "message": "Unlimited" },
-  "popup_plan_pro": { "message": "Pro · unlimited" },
+  "popup_plan_pro": { "message": "Pro · unlimited sites" },
   "popup_plan_free": {
-    "message": "Free · $count$/$limit$ sites",
+    "message": "Free · $count$ of $limit$ sites",
     "placeholders": {
       "count": { "content": "$1" },
       "limit": { "content": "$2" }
@@ -85,6 +86,6 @@
   "popup_verify_body": { "message": "Check your connection and try again, restore a purchase, or upgrade." },
   "popup_verify_retry": { "message": "Try again" },
   "popup_verify_restore": { "message": "Restore purchase" },
-  "popup_restore_link": { "message": "Already purchased? Restore" },
+  "popup_restore_link": { "message": "Restore purchase" },
   "popup_status_save_error": { "message": "Couldn't save — please try again" }
 }
