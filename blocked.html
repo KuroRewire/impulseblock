@@ -308,6 +308,113 @@
       body[data-theme="bold"] .btn + .btn { border-left: none; border-top: 2px solid #0a0a0a; }
       .actions { flex-direction: column; }
     }
+
+    /* =====================================================================
+       MINIMAL THEME REDESIGN — 2-state pause screen (indigo, breathing).
+       Shown ONLY for data-theme="minimal" via the .ib-min container; the
+       grid .screen is hidden for minimal but kept in the DOM (ids preserved).
+       Every selector is scoped to .ib-min / .ibm-* so no other theme is affected.
+       ===================================================================== */
+    body[data-theme="minimal"] .screen { display: none; }
+    .ib-min { display: none; }
+    body[data-theme="minimal"] .ib-min { display: block; }
+
+    .ib-min {
+      --ibm-indigo:#4f46e5; --ibm-indigo-600:#4338ca; --ibm-indigo-300:#a5b4fc;
+      --ibm-indigo-100:#e0e7ff; --ibm-indigo-050:#eef2ff;
+      --ibm-ink:#1e1b4b; --ibm-ink-soft:#4b4b6a; --ibm-paper:#f5f6ff;
+      color:var(--ibm-ink); min-height:100vh;
+      font-family:'Inter', system-ui, sans-serif;
+      background:radial-gradient(120% 90% at 50% 30%, var(--ibm-indigo-050) 0%, var(--ibm-paper) 55%, #eceefb 100%);
+    }
+    /* ambient field — continuous indigo waves + drifting glow, behind everything */
+    .ibm-ambient { position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+    .ibm-glow { position:absolute; left:50%; top:34%; width:80vw; max-width:780px; aspect-ratio:1;
+      transform:translate(-50%,-50%);
+      background:radial-gradient(circle, rgba(99,102,241,.16) 0%, rgba(99,102,241,.05) 40%, transparent 70%);
+      animation:ibm-glowDrift 14s ease-in-out infinite; }
+    @keyframes ibm-glowDrift { 0%,100%{ transform:translate(-50%,-50%) scale(1); opacity:.9; } 50%{ transform:translate(-50%,-58%) scale(1.08); opacity:1; } }
+    .ibm-waves { position:absolute; left:0; right:0; bottom:0; width:100%; height:62vh; min-height:420px; }
+    .ibm-wave { transform-box:view-box; transform-origin:center bottom; }
+    .ibm-wave--1 { fill:rgba(79,70,229,.10); animation:ibm-swell 9s ease-in-out infinite; }
+    .ibm-wave--2 { fill:rgba(99,102,241,.08); animation:ibm-swell 12s ease-in-out infinite .8s; }
+    .ibm-wave--3 { fill:rgba(129,120,245,.06); animation:ibm-swell 15s ease-in-out infinite 1.6s; }
+    @keyframes ibm-swell { 0%,100%{ transform:translateY(14px) scaleY(.96); } 50%{ transform:translateY(-10px) scaleY(1.04); } }
+
+    .ibm-stage { position:relative; z-index:2; min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; padding:7vh 24px 9vh; text-align:center; }
+    .ibm-view { display:none; width:100%; max-width:560px; }
+    .ib-min[data-state="1"] #ib-view1 { display:flex; flex-direction:column; align-items:center; animation:ibm-rise .8s cubic-bezier(.16,.84,.44,1); }
+    .ib-min[data-state="2"] #ib-view2 { display:flex; flex-direction:column; align-items:center; animation:ibm-rise .8s cubic-bezier(.16,.84,.44,1); }
+    @keyframes ibm-rise { from{ opacity:0; transform:translateY(10px);} to{ opacity:1; transform:none; } }
+
+    .ibm-host { font-family:'Space Grotesk', monospace; font-size:13px; letter-spacing:.02em; color:var(--ibm-ink-soft); margin-bottom:6vh; opacity:.8; }
+    .ibm-host b { color:var(--ibm-indigo-600); font-weight:500; }
+
+    .ibm-breath { position:relative; width:min(56vw,260px); aspect-ratio:1; margin-bottom:48px; }
+    .ibm-breath svg { width:100%; height:100%; display:block; overflow:visible; position:relative; z-index:2; }
+    .ibm-aura { position:absolute; top:50%; left:50%; width:88%; height:88%; transform:translate(-50%,-50%) scale(1);
+      border-radius:50%; border:1.5px solid var(--ibm-indigo-300); opacity:0; z-index:1; }
+    .ibm-aura.a1 { animation:ibm-aura 6s ease-out infinite; }
+    .ibm-aura.a2 { animation:ibm-aura 6s ease-out infinite 2s; }
+    .ibm-aura.a3 { animation:ibm-aura 6s ease-out infinite 4s; }
+    @keyframes ibm-aura { 0%{ opacity:.5; transform:translate(-50%,-50%) scale(1);} 70%{ opacity:0; } 100%{ opacity:0; transform:translate(-50%,-50%) scale(1.5);} }
+    .ibm-ring { transform-box:fill-box; transform-origin:center; animation:ibm-ringBreathe 6s ease-in-out infinite; }
+    @keyframes ibm-ringBreathe { 0%,100%{ transform:scale(.93);} 50%{ transform:scale(1.0);} }
+    .ibm-bar { transform-box:fill-box; transform-origin:center; animation:ibm-barBreathe 6s ease-in-out infinite; }
+    .ibm-bar--2 { animation-delay:.12s; }
+    @keyframes ibm-barBreathe { 0%,100%{ transform:scaleY(.82); opacity:.78;} 50%{ transform:scaleY(1.06); opacity:1;} }
+
+    .ibm-q { font-family:'Inter', sans-serif; font-size:clamp(28px,5.2vw,42px); font-weight:300; line-height:1.18; letter-spacing:-.02em; color:var(--ibm-ink); margin-bottom:14px; white-space:nowrap; }
+    .ibm-whisper { font-family:'Fraunces', Georgia, serif; font-style:italic; font-weight:400; font-size:clamp(15px,2.4vw,18px); color:var(--ibm-ink-soft); opacity:.85; margin-bottom:44px; line-height:1.5; white-space:pre-line; }
+
+    .ibm-actions { display:flex; gap:14px; align-items:center; flex-wrap:wrap; justify-content:center; }
+    .ibm-btn { font-family:'Inter', sans-serif; font-size:16px; font-weight:500; border-radius:999px; padding:15px 30px; cursor:pointer; border:1.5px solid transparent; transition:transform .15s ease, box-shadow .2s ease, background .2s ease; min-width:220px; }
+    .ibm-btn--primary { background:var(--ibm-indigo); color:#fff; box-shadow:0 8px 24px rgba(79,70,229,.28); }
+    .ibm-btn--primary:hover { transform:translateY(-1px); box-shadow:0 12px 30px rgba(79,70,229,.36); }
+    .ibm-btn--ghost { background:transparent; color:var(--ibm-indigo-600); border-color:var(--ibm-indigo-100); }
+    .ibm-btn--ghost:hover { background:rgba(79,70,229,.06); }
+    .ibm-btn:disabled { opacity:.5; cursor:not-allowed; box-shadow:none; }
+
+    /* State 2 — session ended: smaller mark, reflection, stats */
+    #ib-view2 .ibm-breath { width:min(44vw,180px); margin-bottom:34px; }
+    .ibm-reflect-head { font-family:'Space Grotesk', monospace; font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--ibm-indigo); opacity:.75; margin-bottom:18px; }
+    .ibm-reflect-title { font-family:'Inter', sans-serif; font-size:clamp(24px,4.4vw,34px); font-weight:300; letter-spacing:-.02em; color:var(--ibm-ink); margin-bottom:10px; line-height:1.22; }
+    .ibm-reflect-sub { font-family:'Fraunces', Georgia, serif; font-style:italic; font-weight:400; font-size:clamp(15px,2.4vw,18px); color:var(--ibm-ink-soft); opacity:.85; margin-bottom:40px; max-width:34ch; }
+    .ibm-stats { width:100%; background:rgba(255,255,255,.6); border:1px solid var(--ibm-indigo-100); border-radius:22px; padding:30px 28px; margin-bottom:38px; text-align:left; box-shadow:0 10px 40px rgba(79,70,229,.08); }
+    .ibm-stats__row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:26px; gap:18px; }
+    .ibm-stat__num { font-family:'Inter', sans-serif; font-size:34px; font-weight:300; color:var(--ibm-indigo-600); letter-spacing:-.02em; }
+    .ibm-stat__num small { font-size:15px; color:var(--ibm-ink-soft); font-weight:400; margin-left:4px; }
+    .ibm-stat__label { font-family:'Space Grotesk', monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ibm-ink-soft); margin-top:4px; }
+    .ibm-spark__head { font-family:'Space Grotesk', monospace; font-size:11px; letter-spacing:.10em; text-transform:uppercase; color:var(--ibm-ink-soft); margin-bottom:14px; }
+    .ibm-week { display:flex; align-items:flex-end; gap:8px; height:84px; }
+    .ibm-day { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:6px; height:100%; }
+    .ibm-day__val { font-family:'Space Grotesk', monospace; font-size:12px; font-weight:500; color:var(--ibm-indigo-600); line-height:1; }
+    .ibm-day__val.zero { color:var(--ibm-ink-soft); opacity:.4; }
+    .ibm-day__bar { width:100%; max-width:26px; min-height:3px; background:linear-gradient(180deg,var(--ibm-indigo-300),var(--ibm-indigo)); border-radius:6px 6px 3px 3px; }
+    .ibm-day__bar.zero { background:var(--ibm-indigo-100); }
+    .ibm-day__lbl { font-family:'Space Grotesk', monospace; font-size:9px; color:var(--ibm-ink-soft); opacity:.7; }
+    .ibm-more { width:100%; border-top:1px solid var(--ibm-indigo-100); margin-top:34px; }
+    .ibm-more summary { list-style:none; cursor:pointer; padding:16px 2px; display:flex; align-items:center; gap:8px; font-family:'Space Grotesk', monospace; font-size:12px; letter-spacing:.04em; color:var(--ibm-ink-soft); }
+    .ibm-more summary::-webkit-details-marker { display:none; }
+    .ibm-more summary::before { content:'›'; color:var(--ibm-indigo); transition:transform .2s; font-size:16px; }
+    .ibm-more details[open] summary::before { transform:rotate(90deg); }
+    .ibm-more__body { padding:4px 2px 18px; text-align:left; }
+    .ibm-more__item { display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid rgba(79,70,229,.08); font-size:14px; color:var(--ibm-ink-soft); }
+    .ibm-more__item:last-child { border-bottom:none; }
+    .ibm-more__item code { font-family:'Space Grotesk', monospace; color:var(--ibm-ink); }
+
+    @media (max-width:560px) {
+      .ibm-actions { flex-direction:column; width:100%; }
+      .ibm-btn { width:100%; }
+      .ibm-stats__row { flex-direction:column; gap:18px; }
+      .ibm-q { white-space:normal; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      .ibm-aura, .ibm-ring, .ibm-bar, .ibm-wave, .ibm-glow { animation:none !important; }
+      .ibm-aura { opacity:.18; transform:translate(-50%,-50%) scale(1); }
+      #ib-view1, #ib-view2 { animation:none !important; }
+    }
   </style>
 </head>
 <body data-theme="minimal">
@@ -405,6 +512,85 @@
         <p><a href="https://support.google.com/chrome/answer/95464" target="_blank" rel="noopener" data-i18n="incognito_help"></a></p>
       </section>
 
+    </div>
+  </div>
+
+  <!-- ===== minimal theme: 2-state redesign. Shown only when data-theme="minimal";
+       the grid .screen above stays in the DOM (ids preserved) but is hidden for minimal.
+       State 1 (#ib-view1) vs State 2 (#ib-view2) chosen by blocked.js from ladderIndex. ===== -->
+  <div class="ib-min" id="ib-min" data-state="1">
+    <div class="ibm-ambient" aria-hidden="true">
+      <div class="ibm-glow"></div>
+      <svg class="ibm-waves" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+        <path class="ibm-wave ibm-wave--3" d="M0 720 Q 360 660 720 720 T 1440 720 V900 H0 Z"/>
+        <path class="ibm-wave ibm-wave--2" d="M0 780 Q 360 720 720 780 T 1440 780 V900 H0 Z"/>
+        <path class="ibm-wave ibm-wave--1" d="M0 830 Q 360 780 720 830 T 1440 830 V900 H0 Z"/>
+      </svg>
+    </div>
+
+    <div class="ibm-stage">
+      <!-- STATE 1 — the pause moment (minimal, no stats) -->
+      <section class="ibm-view" id="ib-view1">
+        <div class="ibm-host"><span data-i18n="ib_pausing"></span>&nbsp;<b id="ib-host"></b></div>
+        <div class="ibm-breath" aria-hidden="true">
+          <div class="ibm-aura a1"></div><div class="ibm-aura a2"></div><div class="ibm-aura a3"></div>
+          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="ibm-ring" cx="100" cy="100" r="88" stroke="#4f46e5" stroke-width="2"/>
+            <rect class="ibm-bar ibm-bar--1" x="84"  y="62" width="13" height="76" rx="6.5" fill="#4f46e5"/>
+            <rect class="ibm-bar ibm-bar--2" x="103" y="62" width="13" height="76" rx="6.5" fill="#4f46e5"/>
+          </svg>
+        </div>
+        <h1 class="ibm-q" data-i18n="blocked_confirm"></h1>
+        <p class="ibm-whisper" data-i18n="ib_whisper_pause"></p>
+        <div class="ibm-actions">
+          <button type="button" class="ibm-btn ibm-btn--primary" id="ib-stop" data-i18n="btn_stop"></button>
+          <button type="button" class="ibm-btn ibm-btn--ghost" id="ib-allow" data-i18n="allow_5min"></button>
+        </div>
+      </section>
+
+      <!-- STATE 2 — session ended: reflection + stats -->
+      <section class="ibm-view" id="ib-view2">
+        <div class="ibm-breath" aria-hidden="true">
+          <div class="ibm-aura a1"></div><div class="ibm-aura a2"></div>
+          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="ibm-ring" cx="100" cy="100" r="88" stroke="#4f46e5" stroke-width="2"/>
+            <rect class="ibm-bar ibm-bar--1" x="84"  y="62" width="13" height="76" rx="6.5" fill="#4f46e5"/>
+            <rect class="ibm-bar ibm-bar--2" x="103" y="62" width="13" height="76" rx="6.5" fill="#4f46e5"/>
+          </svg>
+        </div>
+        <div class="ibm-reflect-head" data-i18n="ib_session_over"></div>
+        <h2 class="ibm-reflect-title" data-i18n="ib_session_q"></h2>
+        <p class="ibm-reflect-sub" data-i18n="ib_reflect_sub"></p>
+
+        <div class="ibm-stats">
+          <div class="ibm-stats__row">
+            <div>
+              <div class="ibm-stat__num"><span id="ib-count">0</span> <small id="ib-count-unit"></small></div>
+              <div class="ibm-stat__label" data-i18n="ib_stat_opened"></div>
+            </div>
+            <div>
+              <div class="ibm-stat__num"><span id="ib-burst">0</span> <small id="ib-burst-unit"></small></div>
+              <div class="ibm-stat__label" data-i18n="ib_stat_burst"></div>
+            </div>
+          </div>
+          <div class="ibm-spark">
+            <div class="ibm-spark__head" data-i18n="ib_week_head"></div>
+            <div class="ibm-week" id="ib-week"></div>
+          </div>
+        </div>
+
+        <div class="ibm-actions">
+          <button type="button" class="ibm-btn ibm-btn--primary" id="ib-letgo" data-i18n="btn_let_go"></button>
+          <button type="button" class="ibm-btn ibm-btn--ghost" id="ib-continue" data-i18n="btn_continue"></button>
+        </div>
+
+        <div class="ibm-more">
+          <details>
+            <summary data-i18n="recent_bursts"></summary>
+            <div class="ibm-more__body" id="ib-more-body"></div>
+          </details>
+        </div>
+      </section>
     </div>
   </div>
 

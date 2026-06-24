@@ -222,15 +222,32 @@
     btn.textContent = t(ladderKeyForDuration(info.durationMs));
   }
 
+  // Apply the GET_NEXT_DURATION result to BOTH the legacy grid button (#btn-yes, used by
+  // bold/focus/calm/zen) and the minimal redesign, and pick State 1 vs State 2 from ladderIndex.
+  function applyNextDuration(info) {
+    applyButtonState(document.getElementById('btn-yes'), info);
+    applyButtonState(document.getElementById('ib-allow'), info);
+    // State 2 "Continue" keeps its label, but is disabled when the daily cap is reached.
+    var cont = document.getElementById('ib-continue');
+    if (cont) {
+      var capped = !info || info.capReached || (info.durationMs || 0) <= 0;
+      cont.disabled = capped;
+      cont.style.opacity = capped ? '0.5' : '1';
+      cont.style.cursor = capped ? 'not-allowed' : 'pointer';
+    }
+    // ladderIndex === 0 → State 1 (pause moment) ; >= 1 → State 2 (session ended).
+    // 15-min gap resets the rung to 0 (sessionRungIndex), so a long pause returns to State 1 by design.
+    var ibMin = document.getElementById('ib-min');
+    if (ibMin) ibMin.setAttribute('data-state', (info && info.ladderIndex >= 1) ? '2' : '1');
+  }
+
   function refreshYesButton() {
-    var btn = document.getElementById('btn-yes');
-    if (!btn) return;
     if (!currentHostname) return;
     chrome.runtime.sendMessage(
       { type: 'GET_NEXT_DURATION', hostname: currentHostname },
       function (info) {
         if (chrome.runtime.lastError) return;
-        applyButtonState(btn, info);
+        applyNextDuration(info);
       }
     );
   }
@@ -333,12 +350,123 @@
     });
   }
 
+  // ===== minimal redesign (2-state) renderers — populate the .ib-min container =====
+  // These reuse the same helpers as the grid renderers (getLastNDates / groupIntoBursts /
+  // formatBurstSummary / PDBlockCore) and the same storage keys; they only write into new
+  // ib-* elements. The grid renderers above still run (their ids are hidden for minimal).
+  function renderMinimalHost() {
+    var el = document.getElementById('ib-host');
+    if (el) el.textContent = currentHostname || t('unknown_host');
+  }
+
+  function renderMinimalCount(openCountByDate) {
+    var c = openCountByDate[getTodayKey()] || 0;
+    var num = document.getElementById('ib-count');
+    if (num) num.textContent = String(c);
+    var unit = document.getElementById('ib-count-unit');
+    if (unit) unit.textContent = langIsJa ? '回' : (c === 1 ? 'time today' : 'times today');
+  }
+
+  function renderMinimalWeek(openCountByDate) {
+    var el = document.getElementById('ib-week');
+    if (!el) return;
+    el.innerHTML = '';
+    var days = getLastNDates(7).slice().reverse(); // oldest → newest, left to right
+    var max = 0;
+    days.forEach(function (d) { var c = openCountByDate[d.key] || 0; if (c > max) max = c; });
+    if (max === 0) max = 1;
+    days.forEach(function (d) {
+      var count = openCountByDate[d.key] || 0;
+      var isZero = count === 0;
+      var day = document.createElement('div'); day.className = 'ibm-day';
+      var val = document.createElement('div'); val.className = 'ibm-day__val' + (isZero ? ' zero' : '');
+      val.textContent = String(count);
+      var bar = document.createElement('div'); bar.className = 'ibm-day__bar' + (isZero ? ' zero' : '');
+      bar.style.height = isZero ? '3px' : (Math.round((count / max) * 100) + '%');
+      var lbl = document.createElement('div'); lbl.className = 'ibm-day__lbl';
+      lbl.textContent = (d.label.split('/')[1] || d.label);
+      day.appendChild(val); day.appendChild(bar); day.appendChild(lbl);
+      el.appendChild(day);
+    });
+  }
+
+  function renderMinimalBurst() {
+    chrome.storage.local.get(['overrideHistoryByDate'], function (data) {
+      var history = (data && data.overrideHistoryByDate) || {};
+      var today = getTodayKey();
+      var entries = (history[today] && history[today][currentHostname]) || [];
+      var mins = 0;
+      if (entries.length) {
+        var bursts = groupIntoBursts(entries);
+        var last = bursts[bursts.length - 1];
+        mins = Math.round((last.totalMs || 0) / 60000);
+      }
+      var num = document.getElementById('ib-burst');
+      if (num) num.textContent = String(mins);
+      var unit = document.getElementById('ib-burst-unit');
+      if (unit) unit.textContent = minUnit;
+    });
+  }
+
+  function renderMinimalMore() {
+    var body = document.getElementById('ib-more-body');
+    if (!body) return;
+    chrome.storage.local.get(['overrideHistoryByDate'], function (data) {
+      var history = (data && data.overrideHistoryByDate) || {};
+      var perHost = {};
+      getLastNDates(7).forEach(function (d) {
+        var dayMap = history[d.key] || {};
+        Object.keys(dayMap).forEach(function (host) {
+          if (!perHost[host]) perHost[host] = [];
+          perHost[host] = perHost[host].concat(dayMap[host] || []);
+        });
+      });
+      body.innerHTML = '';
+      var rows = [];
+      Object.keys(perHost).forEach(function (host) {
+        groupIntoBursts(perHost[host]).forEach(function (b) { rows.push({ host: host, burst: b }); });
+      });
+      rows.sort(function (a, b) { return b.burst.startedAt - a.burst.startedAt; });
+      rows.forEach(function (r) {
+        var item = document.createElement('div'); item.className = 'ibm-more__item';
+        var code = document.createElement('code'); code.textContent = r.host;
+        var span = document.createElement('span'); span.textContent = formatBurstSummary(r.burst);
+        item.appendChild(code); item.appendChild(span); body.appendChild(item);
+      });
+      PDBlockCore.getBlockedHosts(function (hosts) {
+        (hosts || []).forEach(function (h) {
+          var item = document.createElement('div'); item.className = 'ibm-more__item';
+          var code = document.createElement('code'); code.textContent = h;
+          var span = document.createElement('span'); span.textContent = t('blocked_sites');
+          item.appendChild(code); item.appendChild(span); body.appendChild(item);
+        });
+        if (!body.children.length) {
+          var p = document.createElement('div'); p.className = 'ibm-more__item';
+          p.textContent = t('empty_list'); body.appendChild(p);
+        }
+      });
+    });
+  }
+
+  function renderMinimal() {
+    renderMinimalHost();
+    chrome.storage.local.get(['openCountByDate'], function (data) {
+      var oc = (data && data.openCountByDate) || {};
+      renderMinimalCount(oc);
+      renderMinimalWeek(oc);
+    });
+    renderMinimalBurst();
+    renderMinimalMore();
+  }
+
   loadAndShowStats();
   loadBlockedList();
   refreshYesButton();
   renderBursts();
+  renderMinimal();
 
-  document.getElementById('btn-yes').addEventListener('click', function () {
+  // "Allow / Continue" action — shared by the legacy #btn-yes and the minimal #ib-allow / #ib-continue.
+  function doAllow() {
     if (!originalUrl) {
       window.close();
       return;
@@ -394,9 +522,10 @@
         }
       );
     });
-  });
+  }
 
-  document.getElementById('btn-no').addEventListener('click', function () {
+  // "Not now / Let it go" action — shared by the legacy #btn-no and the minimal #ib-stop / #ib-letgo.
+  function doClose() {
     chrome.tabs.getCurrent(function (tab) {
       if (tab && tab.id) {
         chrome.tabs.remove(tab.id).catch(function () {
@@ -411,5 +540,17 @@
         else window.close();
       }
     });
+  }
+
+  // Bind the shared actions to both the legacy grid buttons and the minimal redesign buttons.
+  document.getElementById('btn-yes').addEventListener('click', doAllow);
+  document.getElementById('btn-no').addEventListener('click', doClose);
+  ['ib-allow', 'ib-continue'].forEach(function (id) {
+    var b = document.getElementById(id);
+    if (b) b.addEventListener('click', doAllow);
+  });
+  ['ib-stop', 'ib-letgo'].forEach(function (id) {
+    var b = document.getElementById(id);
+    if (b) b.addEventListener('click', doClose);
   });
 })();
