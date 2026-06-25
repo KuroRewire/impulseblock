@@ -4,7 +4,10 @@
 (function () {
   var overlayId = 'impulseblock-countdown-overlay';
   var TEMP_ALLOW_KEY = 'tempAllowedHosts';
+  var SHOWN_FULL_KEY = 'overlayShownFull'; // {host: grantExpiresAt} — collapse state, content-script-only, lazy-pruned
   var tickHandle = null;
+  var collapseTimer = null; // 5s auto full -> chip (first show in a grant)
+  var leaveTimer = null;    // 2s mouseleave full -> chip
   var currentExpiresAt = 0;
 
   function t(key) {
@@ -36,8 +39,13 @@
       face('Inter', 600, 'inter-600.woff2'),
       face('Space Grotesk', 400, 'space-grotesk-400.woff2'),
       face('Space Grotesk', 500, 'space-grotesk-500.woff2'),
-      // container — gated by .ibov so the new look activates only when Step 3 adds the class + child markup
-      ov + ".ibov{position:fixed !important;top:16px !important;right:16px !important;left:auto !important;bottom:auto !important;z-index:2147483647 !important;display:inline-flex !important;align-items:center !important;gap:12px !important;margin:0 !important;padding:11px 12px 11px 20px !important;background:rgba(255,255,255,.97) !important;border:1px solid #e0e7ff !important;border-radius:999px !important;box-shadow:0 6px 22px rgba(79,70,229,.18) !important;font-family:'Inter',system-ui,sans-serif !important;font-size:13px !important;line-height:1.2 !important;white-space:nowrap !important;width:auto !important;max-width:none !important;}",
+      // wrapper (#id) — positions the pill top-right and is non-interactive so host clicks pass through
+      ov + "{position:fixed !important;top:16px !important;right:16px !important;left:auto !important;bottom:auto !important;z-index:2147483647 !important;margin:0 !important;padding:0 !important;pointer-events:none !important;}",
+      // pill (.ibov) — the visible, interactive element (look lives here); collapses to a chip
+      ov + " .ibov{pointer-events:auto !important;display:inline-flex !important;align-items:center !important;gap:12px !important;margin:0 !important;padding:11px 12px 11px 20px !important;background:rgba(255,255,255,.97) !important;border:1px solid #e0e7ff !important;border-radius:999px !important;box-shadow:0 6px 22px rgba(79,70,229,.18) !important;font-family:'Inter',system-ui,sans-serif !important;font-size:13px !important;line-height:1.2 !important;white-space:nowrap !important;width:auto !important;max-width:none !important;cursor:default !important;transition:padding .2s ease,background .2s ease !important;}",
+      // chip state — show only [mark] MM:SS; hide brand label, separators, Re-block
+      ov + " .ibov.is-chip{padding:8px 14px 8px 12px !important;gap:8px !important;}",
+      ov + " .ibov.is-chip .ibov-sep," + ov + " .ibov.is-chip .ibov-lbl," + ov + " .ibov.is-chip .ibov-reblock{display:none !important;}",
       ov + " .ibov-mark{width:22px !important;height:22px !important;flex:none !important;display:block !important;}",
       ov + " .ibov-mark svg{width:100% !important;height:100% !important;display:block !important;overflow:visible !important;}",
       ov + " .ibov-ring{transform-box:fill-box;transform-origin:center;animation:ibovRing 5.6s ease-in-out infinite !important;}",
@@ -54,7 +62,8 @@
       "@media (prefers-reduced-motion:reduce){" +
         ov + " .ibov-ring," +
         ov + " .ibov-bar," +
-        ov + " .ibov-reblock{animation:none !important;}}"
+        ov + " .ibov-reblock{animation:none !important;}" +
+        ov + " .ibov{transition:none !important;}}"
     ].join('\n');
     var styleEl = document.createElement('style');
     styleEl.id = 'ibov-style';
@@ -69,9 +78,13 @@
 
     injectOverlayStyle();
 
-    var container = document.createElement('div');
-    container.id = overlayId;
-    container.className = 'ibov'; // activates the injected .ibov stylesheet (look lives in injectOverlayStyle)
+    // wrapper holds the id (so getElementById / removeOverlay / querySelector('.ib-countdown') stay valid);
+    // the inner pill carries the look + interactivity.
+    var wrapper = document.createElement('div');
+    wrapper.id = overlayId;
+
+    var pill = document.createElement('div');
+    pill.className = 'ibov';
 
     // breathing mark (enso: ring + two pause bars) — same signature as the stop screen / popup
     var markEl = document.createElement('span');
@@ -104,6 +117,7 @@
     link.textContent = t('overlay_force_block');
     link.addEventListener('click', function (e) {
       e.preventDefault();
+      e.stopPropagation(); // keep Re-block (FORCE_BLOCK) separate from the pill's expand handler
       chrome.runtime.sendMessage({
         type: 'FORCE_BLOCK',
         hostname: window.location.hostname,
@@ -111,14 +125,72 @@
       });
     });
 
-    container.appendChild(markEl);
-    container.appendChild(countdownEl);
-    container.appendChild(sep1);
-    container.appendChild(label);
-    container.appendChild(sep2);
-    container.appendChild(link);
-    document.body.appendChild(container);
-    return container;
+    pill.appendChild(markEl);
+    pill.appendChild(countdownEl);
+    pill.appendChild(sep1);
+    pill.appendChild(label);
+    pill.appendChild(sep2);
+    pill.appendChild(link);
+
+    // hover / click expands chip -> full; leaving re-collapses after 2s (timers cleared in removeOverlay)
+    pill.addEventListener('mouseenter', expand);
+    pill.addEventListener('mouseleave', function () { scheduleChip(2000); });
+    pill.addEventListener('click', expand);
+
+    wrapper.appendChild(pill);
+    document.body.appendChild(wrapper);
+    return wrapper;
+  }
+
+  function pillOf(el) { return el ? el.querySelector('.ibov') : null; }
+
+  function setOverlayState(state) {
+    var p = pillOf(document.getElementById(overlayId));
+    if (!p) return;
+    p.classList.remove('is-full', 'is-chip');
+    p.classList.add(state);
+  }
+
+  function expand() {
+    if (collapseTimer) { clearTimeout(collapseTimer); collapseTimer = null; }
+    if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
+    setOverlayState('is-full');
+  }
+
+  function scheduleChip(ms) {
+    if (leaveTimer) clearTimeout(leaveTimer);
+    leaveTimer = setTimeout(function () { leaveTimer = null; setOverlayState('is-chip'); }, ms);
+  }
+
+  // Persist "this grant already showed the full pill" so reloads / other tabs start collapsed.
+  // Keyed by full hostname, value = grant expiresAt (self-expiring: a new grant changes expiresAt).
+  function markShownFull(hostname, expiresAt) {
+    chrome.storage.local.get([TEMP_ALLOW_KEY, SHOWN_FULL_KEY], function (data) {
+      var allow = (data && data[TEMP_ALLOW_KEY]) || {};
+      var shown = (data && data[SHOWN_FULL_KEY]) || {};
+      var now = Date.now();
+      for (var h in shown) { // lazy prune: drop entries with no active matching grant
+        if (!Object.prototype.hasOwnProperty.call(shown, h)) continue;
+        var cur = findExpiresFor(allow, h);
+        if (!(cur === shown[h] && cur > now)) delete shown[h];
+      }
+      shown[hostname] = expiresAt;
+      var patch = {};
+      patch[SHOWN_FULL_KEY] = shown;
+      chrome.storage.local.set(patch);
+    });
+  }
+
+  // Initialize collapse state once per overlay instance (no-op if already initialized this instance).
+  function applyInitialCollapse(hostname, expiresAt, alreadyShown) {
+    var p = pillOf(document.getElementById(overlayId));
+    if (!p) return;
+    if (p.classList.contains('is-full') || p.classList.contains('is-chip')) return;
+    if (alreadyShown) { p.classList.add('is-chip'); return; }
+    p.classList.add('is-full');
+    markShownFull(hostname, expiresAt);
+    if (collapseTimer) clearTimeout(collapseTimer);
+    collapseTimer = setTimeout(function () { collapseTimer = null; setOverlayState('is-chip'); }, 5000);
   }
 
   function removeOverlay() {
@@ -128,6 +200,8 @@
       clearInterval(tickHandle);
       tickHandle = null;
     }
+    if (collapseTimer) { clearTimeout(collapseTimer); collapseTimer = null; }
+    if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
     currentExpiresAt = 0;
   }
 
@@ -171,11 +245,13 @@
   function syncFromStorage() {
     var hostname = window.location.hostname || '';
     if (!hostname) return;
-    chrome.storage.local.get([TEMP_ALLOW_KEY], function (data) {
+    chrome.storage.local.get([TEMP_ALLOW_KEY, SHOWN_FULL_KEY], function (data) {
       var map = (data && data[TEMP_ALLOW_KEY]) || {};
       var expiresAt = findExpiresFor(map, hostname);
       if (expiresAt && expiresAt > Date.now()) {
-        startCountdown(expiresAt);
+        startCountdown(expiresAt); // unchanged core: builds overlay + 1s tick
+        var shown = (data && data[SHOWN_FULL_KEY]) || {};
+        applyInitialCollapse(hostname, expiresAt, shown[hostname] === expiresAt);
       } else {
         removeOverlay();
       }
