@@ -19,55 +19,89 @@
     return min + ':' + (sec < 10 ? '0' + sec : String(sec));
   }
 
+  // Injects the overlay's stylesheet once (approach B: <style> injection — enables @font-face,
+  // breathing/pulse @keyframes and :hover, which inline styles can't do). All rules are scoped
+  // under #impulseblock-countdown-overlay with an ibov- prefix to avoid host-page CSS clashes.
+  function injectOverlayStyle() {
+    if (document.getElementById('ibov-style')) return; // inject once
+    function face(family, weight, file) {
+      return "@font-face{font-family:'" + family + "';font-style:normal;font-weight:" + weight +
+        ";font-display:swap;src:url('" + chrome.runtime.getURL('assets/fonts/' + file) +
+        "') format('woff2');}";
+    }
+    var ov = '#' + overlayId;
+    var css = [
+      face('Inter', 400, 'inter-400.woff2'),
+      face('Inter', 500, 'inter-500.woff2'),
+      face('Inter', 600, 'inter-600.woff2'),
+      face('Space Grotesk', 400, 'space-grotesk-400.woff2'),
+      face('Space Grotesk', 500, 'space-grotesk-500.woff2'),
+      // container — gated by .ibov so the new look activates only when Step 3 adds the class + child markup
+      ov + ".ibov{position:fixed !important;top:16px !important;right:16px !important;left:auto !important;bottom:auto !important;z-index:2147483647 !important;display:inline-flex !important;align-items:center !important;gap:12px !important;margin:0 !important;padding:11px 12px 11px 20px !important;background:rgba(255,255,255,.97) !important;border:1px solid #e0e7ff !important;border-radius:999px !important;box-shadow:0 6px 22px rgba(79,70,229,.18) !important;font-family:'Inter',system-ui,sans-serif !important;font-size:13px !important;line-height:1.2 !important;white-space:nowrap !important;width:auto !important;max-width:none !important;}",
+      ov + " .ibov-mark{width:22px !important;height:22px !important;flex:none !important;display:block !important;}",
+      ov + " .ibov-mark svg{width:100% !important;height:100% !important;display:block !important;overflow:visible !important;}",
+      ov + " .ibov-ring{transform-box:fill-box;transform-origin:center;animation:ibovRing 5.6s ease-in-out infinite !important;}",
+      ov + " .ibov-bar{transform-box:fill-box;transform-origin:center;animation:ibovBar 5.6s ease-in-out infinite !important;}",
+      ov + " .ibov-bar.b2{animation-delay:.14s !important;}",
+      "@keyframes ibovRing{0%,100%{transform:scale(.92);}50%{transform:scale(1);}}",
+      "@keyframes ibovBar{0%,100%{transform:scaleY(.8);opacity:.8;}50%{transform:scaleY(1.05);opacity:1;}}",
+      ov + " .ibov-time{color:#4338ca !important;font-weight:700 !important;font-family:'Space Grotesk',monospace !important;font-size:17px !important;letter-spacing:-.01em !important;font-variant-numeric:tabular-nums !important;}",
+      ov + " .ibov-sep{color:#a5b4fc !important;}",
+      ov + " .ibov-lbl{color:#4338ca !important;font-weight:500 !important;font-size:12px !important;}",
+      ov + " a.ibov-reblock{color:#4f46e5 !important;font-weight:600 !important;font-size:13px !important;text-decoration:none !important;cursor:pointer !important;display:inline-block !important;transform-origin:center;animation:ibovReblockPulse 5.6s ease-in-out infinite !important;}",
+      ov + " a.ibov-reblock:hover{color:#4338ca !important;}",
+      "@keyframes ibovReblockPulse{0%,100%{transform:scale(.97);opacity:.9;}50%{transform:scale(1.06);opacity:1;}}",
+      "@media (prefers-reduced-motion:reduce){" +
+        ov + " .ibov-ring," +
+        ov + " .ibov-bar," +
+        ov + " .ibov-reblock{animation:none !important;}}"
+    ].join('\n');
+    var styleEl = document.createElement('style');
+    styleEl.id = 'ibov-style';
+    styleEl.textContent = css;
+    (document.head || document.documentElement).appendChild(styleEl);
+  }
+
   function ensureOverlay() {
     var existing = document.getElementById(overlayId);
     if (existing) return existing;
     if (!document.body) return null;
 
+    injectOverlayStyle();
+
     var container = document.createElement('div');
     container.id = overlayId;
-    container.style.position = 'fixed';
-    container.style.top = '16px';
-    container.style.right = '16px';
-    container.style.zIndex = '2147483647';
-    container.style.background = 'rgba(255, 255, 255, 0.95)';
-    container.style.color = '#1A1A1A';
-    container.style.padding = '8px 12px';
-    container.style.borderRadius = '8px';
-    container.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    container.style.fontSize = '12px';
-    container.style.lineHeight = '1.4';
-    container.style.maxWidth = '200px';
-    container.style.boxShadow = '0 1px 4px rgba(0, 0, 0, 0.08)';
-    container.style.border = '1px solid rgba(0, 0, 0, 0.06)';
-    container.style.display = 'flex';
-    container.style.alignItems = 'center';
-    container.style.gap = '8px';
+    container.className = 'ibov'; // activates the injected .ibov stylesheet (look lives in injectOverlayStyle)
+
+    // breathing mark (enso: ring + two pause bars) — same signature as the stop screen / popup
+    var markEl = document.createElement('span');
+    markEl.className = 'ibov-mark';
+    markEl.innerHTML =
+      '<svg viewBox="0 0 32 32" fill="none">' +
+        '<circle class="ibov-ring" cx="16" cy="16" r="14.5" stroke="#4f46e5" stroke-width="2"/>' +
+        '<rect class="ibov-bar b1" x="11.5" y="9.5" width="3" height="13" rx="1.5" fill="#4f46e5"/>' +
+        '<rect class="ibov-bar b2" x="17.5" y="9.5" width="3" height="13" rx="1.5" fill="#4f46e5"/>' +
+      '</svg>';
 
     var countdownEl = document.createElement('span');
-    countdownEl.className = 'ib-countdown';
-    countdownEl.style.fontVariantNumeric = 'tabular-nums';
-    countdownEl.style.fontWeight = '500';
+    countdownEl.className = 'ib-countdown ibov-time'; // ib-countdown kept (tick/startCountdown querySelector)
 
     var sep1 = document.createElement('span');
+    sep1.className = 'ibov-sep';
     sep1.textContent = '·';
-    sep1.style.color = 'rgba(0, 0, 0, 0.3)';
 
     var label = document.createElement('span');
+    label.className = 'ibov-lbl';
     label.textContent = 'ImpulseBlock';
-    label.style.color = 'rgba(0, 0, 0, 0.6)';
 
     var sep2 = document.createElement('span');
+    sep2.className = 'ibov-sep';
     sep2.textContent = '·';
-    sep2.style.color = 'rgba(0, 0, 0, 0.3)';
 
     var link = document.createElement('a');
     link.href = '#';
-    link.className = 'ib-reblock-link';
+    link.className = 'ib-reblock-link ibov-reblock';
     link.textContent = t('overlay_force_block');
-    link.style.color = '#1A1A1A';
-    link.style.textDecoration = 'underline';
-    link.style.cursor = 'pointer';
     link.addEventListener('click', function (e) {
       e.preventDefault();
       chrome.runtime.sendMessage({
@@ -77,6 +111,7 @@
       });
     });
 
+    container.appendChild(markEl);
     container.appendChild(countdownEl);
     container.appendChild(sep1);
     container.appendChild(label);
