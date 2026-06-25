@@ -315,9 +315,22 @@
        grid .screen is hidden for minimal but kept in the DOM (ids preserved).
        Every selector is scoped to .ib-min / .ibm-* so no other theme is affected.
        ===================================================================== */
-    body[data-theme="minimal"] .screen { display: none; }
+    /* 2-state .ib-min is the shared base for all mood themes (sea/sun/moon/sky/wood).
+       'minimal' is kept in the group so nothing breaks before theme-loader switches to the
+       new VALID/DEFAULT (Step 2); after that, data-theme is never 'minimal' (it falls back to sea). */
+    body[data-theme="minimal"] .screen,
+    body[data-theme="sea"] .screen,
+    body[data-theme="sun"] .screen,
+    body[data-theme="moon"] .screen,
+    body[data-theme="sky"] .screen,
+    body[data-theme="wood"] .screen { display: none; }
     .ib-min { display: none; }
-    body[data-theme="minimal"] .ib-min { display: block; }
+    body[data-theme="minimal"] .ib-min,
+    body[data-theme="sea"] .ib-min,
+    body[data-theme="sun"] .ib-min,
+    body[data-theme="moon"] .ib-min,
+    body[data-theme="sky"] .ib-min,
+    body[data-theme="wood"] .ib-min { display: block; }
 
     .ib-min {
       --ibm-indigo:#4f46e5; --ibm-indigo-600:#4338ca; --ibm-indigo-300:#a5b4fc;
@@ -366,13 +379,14 @@
     @keyframes ibm-barBreathe { 0%,100%{ transform:scaleY(.82); opacity:.78;} 50%{ transform:scaleY(1.06); opacity:1;} }
 
     .ibm-q { font-family:'Inter', sans-serif; font-size:clamp(28px,5.2vw,42px); font-weight:300; line-height:1.18; letter-spacing:-.02em; color:var(--ibm-ink); margin-bottom:14px; white-space:nowrap; }
+    .ibm-q em { font-family:'Fraunces', Georgia, serif; font-style:italic; font-weight:400; color:var(--ibm-indigo-600); }
     .ibm-whisper { font-family:'Fraunces', Georgia, serif; font-style:italic; font-weight:400; font-size:clamp(15px,2.4vw,18px); color:var(--ibm-ink-soft); opacity:.85; margin-bottom:44px; line-height:1.5; white-space:pre-line; }
 
     .ibm-actions { display:flex; gap:14px; align-items:center; flex-wrap:wrap; justify-content:center; }
     .ibm-btn { font-family:'Inter', sans-serif; font-size:16px; font-weight:500; border-radius:999px; padding:15px 30px; cursor:pointer; border:1.5px solid transparent; transition:transform .15s ease, box-shadow .2s ease, background .2s ease; min-width:220px; }
     .ibm-btn--primary { background:var(--ibm-indigo); color:#fff; box-shadow:0 8px 24px rgba(79,70,229,.28); }
     .ibm-btn--primary:hover { transform:translateY(-1px); box-shadow:0 12px 30px rgba(79,70,229,.36); }
-    .ibm-btn--ghost { background:transparent; color:var(--ibm-indigo-600); border-color:var(--ibm-indigo-100); }
+    .ibm-btn--ghost { background:#fff; color:var(--ibm-indigo-600); border-color:var(--ibm-indigo-100); }
     .ibm-btn--ghost:hover { background:rgba(79,70,229,.06); }
     .ibm-btn:disabled { opacity:.5; cursor:not-allowed; box-shadow:none; }
 
@@ -411,10 +425,120 @@
       .ibm-q { white-space:normal; }
     }
     @media (prefers-reduced-motion:reduce) {
-      .ibm-aura, .ibm-ring, .ibm-bar, .ibm-wave, .ibm-glow { animation:none !important; }
+      .ibm-aura, .ibm-ring, .ibm-bar, .ibm-wave, .ibm-glow,
+      .ibm-sun, .ibm-rays, .ibm-moon, .ibm-stars span, .ibm-cloud, .ibm-leaves span { animation:none !important; }
       .ibm-aura { opacity:.18; transform:translate(-50%,-50%) scale(1); }
       #ib-view1, #ib-view2 { animation:none !important; }
     }
+
+    /* ===================== MOOD PALETTES (Step 3) — sea = .ib-min base, no override ===================== */
+    /* breathing mark follows the palette (SVG markup has a hardcoded #4f46e5; CSS stroke/fill wins) */
+    .ib-min .ibm-ring { stroke: var(--ibm-indigo); }
+    .ib-min .ibm-bar { fill: var(--ibm-indigo); }
+
+    /* SUN — amber sunrise */
+    body[data-theme="sun"] .ib-min {
+      --ibm-indigo:#e9883e; --ibm-indigo-600:#c2683a; --ibm-indigo-300:#e9a766;
+      --ibm-indigo-100:#f3d9c2; --ibm-indigo-050:#fff2ec;
+      --ibm-ink:#3d2b22; --ibm-ink-soft:#7a5c4d; --ibm-paper:#fff2ec;
+      background:linear-gradient(180deg, #e8edf5 0%, #eee9f1 26%, #f6e8ee 48%, #fce6db 68%, #f9cda6 86%, #f4b88a 100%);
+    }
+    /* SKY — blue open air */
+    body[data-theme="sky"] .ib-min {
+      --ibm-indigo:#3f87c8; --ibm-indigo-600:#2e6da3; --ibm-indigo-300:#7fb0db;
+      --ibm-indigo-100:#d2e6f5; --ibm-indigo-050:#eaf5fc;
+      --ibm-ink:#1c3346; --ibm-ink-soft:#3a5d76; --ibm-paper:#eaf5fc;
+      background:linear-gradient(180deg, #acd4f0 0%, #cfe7f7 45%, #eaf5fc 100%);
+    }
+    /* WOOD — green forest */
+    body[data-theme="wood"] .ib-min {
+      --ibm-indigo:#6f7a4e; --ibm-indigo-600:#5c6640; --ibm-indigo-300:#9aa078;
+      --ibm-indigo-100:#dcdec5; --ibm-indigo-050:#eef0e0;
+      --ibm-ink:#33371f; --ibm-ink-soft:#4e533a; --ibm-paper:#e6e2d2;
+      background:linear-gradient(180deg, #e8e3d0 0%, #ddd8c0 50%, #e6e2d2 100%);
+    }
+    /* MOON — dark moonlight. Individual handling: light mark/text on dark bg; dark stats box for State 2. */
+    body[data-theme="moon"] .ib-min {
+      --ibm-indigo:#6366f1; --ibm-indigo-600:#4338ca; --ibm-indigo-300:#a5b4fc;
+      --ibm-indigo-100:#3a3f6b; --ibm-indigo-050:#1b1f40;
+      --ibm-ink:#ecedff; --ibm-ink-soft:#c3c5e8; --ibm-paper:#0a0b1a;
+      background:radial-gradient(130% 90% at 50% 20%, #1b1f40, #0a0b1a 65%);
+    }
+    body[data-theme="moon"] .ib-min .ibm-ring { stroke:#a5b4fc; }
+    body[data-theme="moon"] .ib-min .ibm-bar { fill:#a5b4fc; }
+    body[data-theme="moon"] .ib-min .ibm-q em { color:#a5b4fc; }
+    /* moon State 2: dark translucent stats box + light numbers (prototype specced State 1 only) */
+    body[data-theme="moon"] .ib-min .ibm-stats { background:rgba(30,33,70,.5); border-color:rgba(165,180,252,.22); box-shadow:none; }
+    body[data-theme="moon"] .ib-min .ibm-stat__num,
+    body[data-theme="moon"] .ib-min .ibm-day__val { color:#c7cbff; }
+
+    /* ===================== MOOD MOTIFS (Step 4) — CSS-gated per data-theme ===================== */
+    /* sea uses .ibm-ambient (indigo waves); gate it to sea/minimal so other moods don't show it */
+    .ib-min .ibm-ambient { display:none; }
+    body[data-theme="sea"] .ib-min .ibm-ambient,
+    body[data-theme="minimal"] .ib-min .ibm-ambient { display:block; }
+    /* shared motif layer (behind .ibm-stage which is z-index:2) */
+    .ib-min .ibm-motif { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; display:none; }
+    body[data-theme="sun"] .ib-min .ibm-motif--sun,
+    body[data-theme="moon"] .ib-min .ibm-motif--moon,
+    body[data-theme="sky"] .ib-min .ibm-motif--sky,
+    body[data-theme="wood"] .ib-min .ibm-motif--wood { display:block; }
+
+    /* SUN — rising sun + slow rays */
+    .ibm-sun { position:absolute; bottom:-94vh; left:50%; transform:translateX(-50%); width:110vh; height:110vh; border-radius:50%; z-index:1;
+      background:radial-gradient(circle, rgba(255,214,150,.98) 0%, rgba(255,201,118,.82) 60%, rgba(255,197,112,.5) 86%, rgba(255,197,112,0) 100%);
+      filter:blur(4px); box-shadow:0 0 120px rgba(255,200,120,.40), 0 0 220px rgba(255,185,100,.24); /* defined-but-soft body + warm halo */
+      animation:ibm-sunGlow 6s ease-in-out infinite; }
+    @keyframes ibm-sunGlow { 0%,100%{ transform:translateX(-50%) scale(.97); opacity:.9; } 50%{ transform:translateX(-50%) scale(1.04); opacity:1; } }
+    .ibm-rays { position:absolute; bottom:-158vh; left:50%; transform:translateX(-50%); width:170vh; height:170vh; z-index:0; opacity:.35;
+      background:conic-gradient(from 0deg, transparent 0deg, rgba(255,200,130,.22) 12deg, transparent 24deg, rgba(255,200,130,.22) 36deg, transparent 48deg, rgba(255,200,130,.22) 60deg, transparent 72deg, rgba(255,200,130,.22) 84deg, transparent 96deg, rgba(255,200,130,.22) 108deg, transparent 120deg, rgba(255,200,130,.22) 132deg, transparent 144deg, rgba(255,200,130,.22) 156deg, transparent 168deg, rgba(255,200,130,.22) 180deg);
+      -webkit-mask:radial-gradient(circle, #000 30%, transparent 68%); mask:radial-gradient(circle, #000 30%, transparent 68%);
+      animation:ibm-rayspin 60s linear infinite; }
+    @keyframes ibm-rayspin { 0%{ transform:translateX(-50%) rotate(0); } 100%{ transform:translateX(-50%) rotate(360deg); } }
+
+    /* MOON — rising moon + twinkling stars */
+    .ibm-moon { position:absolute; bottom:-90vh; left:50%; transform:translateX(-50%); width:104vh; height:104vh; border-radius:50%; z-index:1;
+      background:radial-gradient(circle at 45% 42%, rgba(253,251,233,.92) 0%, rgba(240,238,212,.7) 48%, rgba(220,218,192,.35) 78%, rgba(220,218,192,0) 100%);
+      filter:blur(6px); box-shadow:0 0 90px rgba(253,251,233,.30), 0 0 160px rgba(165,180,252,.20);
+      animation:ibm-moonGlow 7s ease-in-out infinite; }
+    @keyframes ibm-moonGlow { 0%,100%{ transform:translateX(-50%) scale(.99); opacity:.88; } 50%{ transform:translateX(-50%) scale(1.03); opacity:1; } }
+    .ibm-stars span { position:absolute; width:2.5px; height:2.5px; background:#fff; border-radius:50%; z-index:1; animation:ibm-twinkle 4s ease-in-out infinite; }
+    .ibm-stars span:nth-child(1){ top:20%; left:18%; animation-delay:0s; }
+    .ibm-stars span:nth-child(2){ top:30%; left:72%; animation-delay:1.1s; }
+    .ibm-stars span:nth-child(3){ top:15%; left:48%; animation-delay:.6s; width:2px; height:2px; }
+    .ibm-stars span:nth-child(4){ top:42%; left:26%; animation-delay:2.2s; }
+    .ibm-stars span:nth-child(5){ top:24%; left:84%; animation-delay:1.6s; width:2px; height:2px; }
+    .ibm-stars span:nth-child(6){ top:38%; left:10%; animation-delay:3s; }
+    .ibm-stars span:nth-child(7){ top:12%; left:62%; animation-delay:2.6s; width:2px; height:2px; }
+    .ibm-stars span:nth-child(8){ top:46%; left:58%; animation-delay:.9s; }
+    .ibm-stars span:nth-child(9){ top:18%; left:34%; animation-delay:3.4s; width:2px; height:2px; }
+    .ibm-stars span:nth-child(10){ top:33%; left:90%; animation-delay:1.4s; }
+    @keyframes ibm-twinkle { 0%,100%{ opacity:.2; transform:scale(.8); } 50%{ opacity:1; transform:scale(1.1); } }
+
+    /* SKY — drifting clouds */
+    .ibm-cloud { position:absolute; background:#fff; border-radius:50%; filter:blur(2px); }
+    .ibm-c1{ width:92px; height:92px; top:12%; left:-32%; box-shadow:52px 12px 0 -8px #fff, 104px 22px 0 -16px #fff, -42px 16px 0 -12px #fff; opacity:.92; animation:ibm-cloudDrift 28s linear infinite; }
+    .ibm-c2{ width:64px; height:64px; top:34%; left:-28%; box-shadow:40px 10px 0 -6px #fff, 80px 18px 0 -12px #fff; opacity:.78; animation:ibm-cloudDrift 38s linear infinite; animation-delay:-20s; }
+    .ibm-c3{ width:78px; height:78px; top:54%; left:-34%; box-shadow:46px 12px 0 -7px #fff, 92px 20px 0 -14px #fff, -38px 14px 0 -12px #fff; opacity:.7; animation:ibm-cloudDrift 32s linear infinite; animation-delay:-12s; }
+    .ibm-c4{ width:104px; height:104px; top:24%; left:-36%; box-shadow:58px 14px 0 -9px #fff, 116px 24px 0 -17px #fff, -46px 18px 0 -14px #fff; opacity:.85; animation:ibm-cloudDrift 24s linear infinite; animation-delay:-6s; }
+    .ibm-c5{ width:56px; height:56px; top:72%; left:-26%; box-shadow:34px 8px 0 -5px #fff, 68px 16px 0 -11px #fff; opacity:.62; animation:ibm-cloudDrift 36s linear infinite; animation-delay:-28s; }
+    @keyframes ibm-cloudDrift { 0%{ transform:translateX(0); } 100%{ transform:translateX(120vw); } }
+
+    /* WOOD — canopy light + hazy mountains + falling leaves */
+    .ibm-canopy { position:absolute; inset:0; z-index:0; opacity:.5;
+      background:radial-gradient(40% 30% at 25% 12%, rgba(150,170,90,.30), transparent 60%), radial-gradient(35% 28% at 78% 8%, rgba(150,170,90,.22), transparent 60%); }
+    .ibm-mtns { position:absolute; left:0; right:0; bottom:0; height:38%; z-index:1; opacity:.55; filter:blur(2px);
+      -webkit-mask:linear-gradient(180deg, transparent, #000 42%); mask:linear-gradient(180deg, transparent, #000 42%); }
+    .ibm-mtns svg { position:absolute; bottom:0; width:100%; height:100%; display:block; }
+    .ibm-m-far { fill:#b5b994; }
+    .ibm-m-mid { fill:#9aa078; }
+    .ibm-leaves span { position:absolute; top:-24px; width:11px; height:11px; z-index:2; background:#7c8a4e; border-radius:0 100% 0 100%; opacity:.8; animation:ibm-fall linear infinite; }
+    .ibm-leaves span:nth-child(1){ left:18%; animation-duration:9s; animation-delay:0s; background:#7c8a4e; }
+    .ibm-leaves span:nth-child(2){ left:42%; animation-duration:12s; animation-delay:2s; background:#94a05a; }
+    .ibm-leaves span:nth-child(3){ left:66%; animation-duration:10s; animation-delay:1s; background:#8a7c42; }
+    .ibm-leaves span:nth-child(4){ left:80%; animation-duration:13s; animation-delay:4s; background:#7c8a4e; }
+    .ibm-leaves span:nth-child(5){ left:30%; animation-duration:11s; animation-delay:6s; background:#94a05a; }
+    @keyframes ibm-fall { 0%{ transform:translateY(0) rotate(0); opacity:0; } 10%{ opacity:.8; } 88%{ opacity:.8; } 100%{ transform:translateY(80vh) rotate(220deg); opacity:0; } }
   </style>
 </head>
 <body data-theme="minimal">
@@ -527,6 +651,12 @@
         <path class="ibm-wave ibm-wave--1" d="M0 830 Q 360 780 720 830 T 1440 830 V900 H0 Z"/>
       </svg>
     </div>
+
+    <!-- per-mood motifs (Step 4); CSS-gated by data-theme. sea uses .ibm-ambient (waves) above. -->
+    <div class="ibm-motif ibm-motif--sun" aria-hidden="true"><div class="ibm-rays"></div><div class="ibm-sun"></div></div>
+    <div class="ibm-motif ibm-motif--moon" aria-hidden="true"><div class="ibm-moon"></div><div class="ibm-stars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
+    <div class="ibm-motif ibm-motif--sky" aria-hidden="true"><div class="ibm-cloud ibm-c1"></div><div class="ibm-cloud ibm-c2"></div><div class="ibm-cloud ibm-c3"></div><div class="ibm-cloud ibm-c4"></div><div class="ibm-cloud ibm-c5"></div></div>
+    <div class="ibm-motif ibm-motif--wood" aria-hidden="true"><div class="ibm-canopy"></div><div class="ibm-mtns"><svg viewBox="0 0 400 160" preserveAspectRatio="none"><path class="ibm-m-far" d="M0,160 L0,96 L70,52 L130,90 L200,40 L270,84 L340,48 L400,88 L400,160 Z"/><path class="ibm-m-mid" d="M0,160 L0,120 L60,86 L120,116 L190,74 L260,110 L330,80 L400,114 L400,160 Z"/></svg></div><div class="ibm-leaves"><span></span><span></span><span></span><span></span><span></span></div></div>
 
     <div class="ibm-stage">
       <!-- STATE 1 — the pause moment (minimal, no stats) -->

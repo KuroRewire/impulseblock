@@ -1,6 +1,6 @@
 // Reads the user's chosen block-screen theme and applies it before render.
 // Theme is stored under 'blockTheme' in chrome.storage.local (set from the popup, F3).
-// Falls back to 'minimal' when nothing is stored.
+// Falls back to 'sea' when nothing is stored.
 //
 // Also applies the user's custom pause image (F4): stored under 'pauseImage' as a
 // base64 data URL. blocked.js sets #cheer-image to the bundled language default
@@ -8,8 +8,8 @@
 // AFTER blocked.js, so a custom image wins and the default is left untouched when
 // none is set. Reset (pauseImage removed) restores the language default live.
 (function () {
-  var DEFAULT_THEME = 'minimal';
-  var VALID = ['bold', 'focus', 'calm', 'minimal', 'zen'];
+  var DEFAULT_THEME = 'sea';
+  var VALID = ['sea', 'sun', 'moon', 'sky', 'wood'];
 
   function apply(theme) {
     var t = VALID.indexOf(theme) !== -1 ? theme : DEFAULT_THEME;

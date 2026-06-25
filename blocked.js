@@ -553,4 +553,26 @@
     var b = document.getElementById(id);
     if (b) b.addEventListener('click', doClose);
   });
+
+  // ===== per-mood copy (Step 5) — sets State 1 question/whisper by mood. Additive: does not touch
+  // the 2-state judgment, renderMinimal* renderers, ladder, or button wiring. The data-i18n fallback
+  // (blocked_confirm / ib_whisper_pause) fills synchronously; this async override runs after, so mood wins. =====
+  function applyMoodCopy(mood) {
+    var MOODS = ['sea', 'sun', 'moon', 'sky', 'wood'];
+    var m = MOODS.indexOf(mood) !== -1 ? mood : 'sea';
+    var qEl = document.querySelector('#ib-view1 .ibm-q');
+    var wEl = document.querySelector('#ib-view1 .ibm-whisper');
+    var q = t('mood_' + m + '_q');
+    var w = t('mood_' + m + '_whisper');
+    if (qEl && q) qEl.innerHTML = q.replace(/\*([^*]+)\*/g, '<em>$1</em>'); // trusted i18n text; *..* -> <em>
+    if (wEl && w) wEl.textContent = w; // .ibm-whisper is white-space:pre-line, so \n becomes a line break
+  }
+  try {
+    chrome.storage.local.get(['blockTheme'], function (data) {
+      applyMoodCopy(data && data.blockTheme);
+    });
+    chrome.storage.onChanged.addListener(function (changes, area) {
+      if (area === 'local' && changes.blockTheme) applyMoodCopy(changes.blockTheme.newValue);
+    });
+  } catch (e) {}
 })();

@@ -100,13 +100,13 @@
 
   // ===== F3: block-screen theme picker (added — existing logic above is untouched) =====
   var THEMES = [
-    { id: 'bold', name: 'Bold', color: '#e8482b' },
-    { id: 'focus', name: 'Focus', color: '#3d7dff' },
-    { id: 'calm', name: 'Calm', color: '#ff9f5a' },
-    { id: 'minimal', name: 'Minimal', color: '#4f46e5' },
-    { id: 'zen', name: 'Zen', color: '#6a5e4d' }
+    { id: 'sea', name: 'Sea', color: '#4f46e5' },
+    { id: 'sun', name: 'Sun', color: '#e9883e' },
+    { id: 'moon', name: 'Moon', color: '#6366f1' },
+    { id: 'sky', name: 'Sky', color: '#3f87c8' },
+    { id: 'wood', name: 'Wood', color: '#6f7a4e' }
   ];
-  var THEME_DEFAULT = 'minimal';
+  var THEME_DEFAULT = 'sea';
   var themeGrid = document.getElementById('theme-grid');
   var themeButtons = {};
 
