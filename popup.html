@@ -78,23 +78,6 @@
     .theme-swatch.selected { border-color: var(--indigo); background: var(--indigo-050); font-weight: 500; }
     .theme-swatch .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
 
-    /* pause image */
-    .image-row { display: flex; align-items: center; gap: 10px; }
-    .image-preview { width: 46px; height: 46px; flex: none; border-radius: 10px; border: 1px solid var(--line);
-      object-fit: cover; background: var(--indigo-050); }
-    .image-controls { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-    /* native file input hidden; relabeled via the <label class="img-choose"> below (no JS: for= opens the dialog, change still fires on this input) */
-    .image-controls input[type="file"] { display: none; }
-    .img-choose {
-      display: inline-block; align-self: flex-start;
-      font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 500;
-      padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--indigo-100);
-      background: transparent; color: var(--indigo-600); cursor: pointer; transition: .15s ease; }
-    .img-choose:hover { background: rgba(79,70,229,.06); }
-    .btn-reset { font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 500; padding: 6px 12px; border-radius: 999px;
-      border: 1.5px solid var(--line); background: transparent; color: var(--ink-soft); cursor: pointer; transition: .15s ease; align-self: flex-start; }
-    .btn-reset:hover { background: var(--indigo-050); color: var(--indigo-600); }
-    #pause-image-status { font-size: 10.5px; color: #c0392b; margin: 7px 0 0; }
 
     /* monetization dialogs (#cap-dialog / #verify-dialog) — preserved, restyled */
     .cap-dialog { margin-top: 14px; background: var(--white); border: 1px solid var(--indigo-100); border-radius: 14px;
@@ -172,17 +155,6 @@
   <p class="section-title" data-i18n="popup_theme_label"></p>
   <div id="theme-grid" class="theme-grid"></div>
 
-  <!-- F4: custom pause image -->
-  <p class="section-title" data-i18n="popup_image_label"></p>
-  <div class="image-row">
-    <img id="pause-image-preview" class="image-preview" alt="" />
-    <div class="image-controls">
-      <input type="file" id="pause-image-input" accept="image/*" />
-      <label for="pause-image-input" class="img-choose" data-i18n="popup_image_choose"></label>
-      <button type="button" id="pause-image-reset" class="btn-reset" data-i18n="popup_image_reset"></button>
-    </div>
-  </div>
-  <p id="pause-image-status"></p>
 
   <script src="block-core.js"></script>
   <script src="popup-i18n.js"></script>
