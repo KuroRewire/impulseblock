@@ -1,6 +1,9 @@
 # ImpulseBlock Mobile — Implementation Report
 
 Run date: 2026-07-26. Autonomous end-to-end implementation run, completed.
+Post-implementation audit of commit `32cdb3b` completed the same day —
+findings and resolutions in [docs/mobile/IMPLEMENTATION_AUDIT.md](docs/mobile/IMPLEMENTATION_AUDIT.md);
+backup branch `backup/mobile-implementation-32cdb3b` protects the original state.
 
 ## 1. What exists now
 
@@ -65,9 +68,10 @@ mobile/README.md · root README mobile section
 
 | Check | Result |
 |---|---|
-| Android `./gradlew test` | ✅ BUILD SUCCESSFUL — **43/43 unit tests pass** (5 suites: BlockDecision 14, DomainNormalizer 10, UrlBarParser 8, ImportExport 7, SystemAllowlist 4) |
-| Android `./gradlew lint` | ✅ clean (`abortOnError=true`) |
-| Android `./gradlew assembleDebug` | ✅ `app-debug.apk` (9.7 MB) produced |
+| Android `./gradlew clean test lint assembleDebug` (full clean rebuild, post-audit) | ✅ BUILD SUCCESSFUL — 75/75 tasks executed from clean |
+| Android unit tests | ✅ **43/43 pass, 0 failures, 0 errors** (BlockDecision 14, DomainNormalizer 10, UrlBarParser 8, ImportExport 7, SystemAllowlist 4) |
+| Android lint | ✅ **0 errors** (`abortOnError=true`); 26 warnings remain, all triaged in IMPLEMENTATION_AUDIT.md (pinned toolchain versions + intentional overlay styling) |
+| Debug APK | ✅ `mobile/android/app/build/outputs/apk/debug/app-debug.apk` — **9,737,471 bytes**, SHA-256 `f66ea6e9f11506a6727436a1e6acb0adc3fa5542b8729eb8d2a45c24ec951983` |
 | iOS project generation (`xcodegen generate`) | ✅ 5 targets, valid plists (`plutil -lint` OK) |
 | iOS compilation | ❌ **BLOCKED — Xcode not installed on this machine.** Exact output: `xcodebuild -version` → `xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance`; no `/Applications/Xcode*.app`. Sources are written against documented SDK APIs; `scripts/mobile-build.sh ios` runs the signing-disabled simulator build once Xcode is installed. |
 | iOS unit tests | ❌ blocked by the same missing Xcode (26 test cases ready in `mobile/ios/Tests/`) |

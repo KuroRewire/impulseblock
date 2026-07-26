@@ -104,7 +104,7 @@ fun OnboardingScreen(viewModel: MainViewModel) {
                 Text("I understand and agree")
             }
         } else {
-            val serviceOn = viewModel.isAccessibilityServiceEnabled()
+            val serviceOn by rememberServiceEnabled(viewModel)
             if (serviceOn) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.CheckCircle, contentDescription = null,
@@ -145,7 +145,7 @@ fun OnboardingScreen(viewModel: MainViewModel) {
 fun HomeScreen(viewModel: MainViewModel, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
-    val serviceOn = viewModel.isAccessibilityServiceEnabled()
+    val serviceOn by rememberServiceEnabled(viewModel)
     val now = System.currentTimeMillis()
     val activeAllowances =
         state.tempAllowedPackages.filterValues { it > now } + state.tempAllowedHosts.filterValues { it > now }
@@ -486,12 +486,12 @@ fun SettingsScreen(viewModel: MainViewModel, modifier: Modifier = Modifier) {
             }
         }
 
+        val serviceOn by rememberServiceEnabled(viewModel)
         Card {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Permissions", style = MaterialTheme.typography.titleMedium)
                 Text(
-                    if (viewModel.isAccessibilityServiceEnabled())
-                        "Accessibility service: on"
+                    if (serviceOn) "Accessibility service: on"
                     else "Accessibility service: OFF",
                 )
                 OutlinedButton(onClick = {

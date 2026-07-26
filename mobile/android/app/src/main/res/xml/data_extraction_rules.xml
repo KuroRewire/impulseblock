@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Privacy hardening: block-list data never leaves the device, including via
+     cloud backup and Android 12+ device-to-device transfer (which can ignore
+     allowBackup=false without these rules). -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" path="." />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" path="." />
+    </device-transfer>
+</data-extraction-rules>

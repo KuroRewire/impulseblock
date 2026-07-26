@@ -1,5 +1,6 @@
 package com.impulseblock.mobile.data
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -38,6 +39,8 @@ class BlockStateRepository(private val context: Context) {
 
         const val SETTINGS_VERSION = 1
 
+        // Holds the application context only (see get()) — cannot leak an Activity.
+        @SuppressLint("StaticFieldLeak")
         @Volatile
         private var instance: BlockStateRepository? = null
 

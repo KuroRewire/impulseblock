@@ -27,6 +27,8 @@
 
     <application
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -43,9 +45,12 @@
             </intent-filter>
         </activity>
 
+        <!-- exported=true is required by current platform guidance for
+             accessibility services; binding stays restricted to the system
+             via the BIND_ACCESSIBILITY_SERVICE signature permission. -->
         <service
             android:name=".service.ImpulseBlockAccessibilityService"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/accessibility_service_label"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>

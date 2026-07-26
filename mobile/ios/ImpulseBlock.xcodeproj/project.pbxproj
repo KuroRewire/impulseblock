@@ -20,6 +20,7 @@
 		35D02D9CB91E17822394B3AC /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F38F918989FDDF72A44CF31 /* HomeView.swift */; };
 		389E2DC8768645016E914F16 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E828F9B244D32290018EC85 /* Models.swift */; };
 		3C2E89FAC2B1F71AFC99E723 /* ShieldConfigurationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 311A891C009F81E8057075CE /* ShieldConfigurationProvider.swift */; };
+		4EB42F97E0F28B594B4D1619 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 19ECAF3C47448242B46EFA35 /* Assets.xcassets */; };
 		51A1E6CF94C6021755230E93 /* ShieldApplier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB6F99B35348A7B87645D08 /* ShieldApplier.swift */; };
 		5292A590F319D83FE7840512 /* Punycode.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB9521B5DEA34972ADCEBCA5 /* Punycode.swift */; };
 		5315193A397397A6A54339AD /* PunycodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE272FE41E07A9786716F375 /* PunycodeTests.swift */; };
@@ -119,6 +120,7 @@
 		0E828F9B244D32290018EC85 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		121931BF76DCF08E194131AA /* enso.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = enso.png; sourceTree = "<group>"; };
 		1818271851B4AFFD3C2060C4 /* ImpulseBlock.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ImpulseBlock.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		19ECAF3C47448242B46EFA35 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1F38F918989FDDF72A44CF31 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		23B4A168EF4D9A2A8B2CC759 /* ManagedSettingsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ManagedSettingsUI.framework; path = System/Library/Frameworks/ManagedSettingsUI.framework; sourceTree = SDKROOT; };
 		311A891C009F81E8057075CE /* ShieldConfigurationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldConfigurationProvider.swift; sourceTree = "<group>"; };
@@ -319,6 +321,7 @@
 		A4375818C57F33615D1C0CA0 /* ImpulseBlock */ = {
 			isa = PBXGroup;
 			children = (
+				19ECAF3C47448242B46EFA35 /* Assets.xcassets */,
 				9E43655EF487E6D337EFDDFF /* ImpulseBlock.entitlements */,
 				78C97DE7A5324F232515B9E6 /* App */,
 				84BCFC0087BACF75CA798B07 /* Managers */,
@@ -352,6 +355,7 @@
 			buildConfigurationList = 5D4EB52244D4520D281F9EB4 /* Build configuration list for PBXNativeTarget "ImpulseBlock" */;
 			buildPhases = (
 				F6797EB66D3234AA7D9F885E /* Sources */,
+				4B3E1BA0FB5B3F0158D139F1 /* Resources */,
 				CDDB48F53CAC9D1CF5BACC39 /* Frameworks */,
 				6831B7B0979BBAC4F908E373 /* Embed Foundation Extensions */,
 			);
@@ -497,6 +501,14 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		4B3E1BA0FB5B3F0158D139F1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EB42F97E0F28B594B4D1619 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A15341B3E178CDC4830FAC96 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -700,6 +712,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -828,6 +841,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
