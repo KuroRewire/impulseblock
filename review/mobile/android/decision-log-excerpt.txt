@@ -1,0 +1,31 @@
+ImpulseBlock AccessibilityService — sanitized decision-log excerpt
+Device: Pixel 10 Pro, Android 16 (API 36), Chrome 150.0.7871.181
+Date: 2026-07-26. Captured via `adb logcat -s ImpulseBlockSvc:D`.
+
+Note: the service logs coarse booleans + package names only — never URLs or
+hostnames. `example.com` below is the public documentation domain the tester
+added on purpose, not private browsing. Debug logging is compiled out of
+release builds (BuildConfig.DEBUG gate) as of this run.
+
+# App block — opening a selected app (YouTube)
+evaluate pkg=com.google.android.youtube hostDetected=false blockedPkgs=3 enabled=true decision=BlockApp
+
+# Re-block after the 5-minute temporary allowance expired (grant 10:37:26 -> expiry 10:42:28)
+evaluate pkg=com.google.android.youtube hostDetected=false blockedPkgs=3 enabled=true decision=BlockApp
+
+# Seed-on-connect (audit fix): after a service restart the first evaluate is
+# seeded from the active window with NO preceding window-state event
+evaluate pkg=com.google.android.apps.nexuslauncher hostDetected=false blockedPkgs=3 enabled=true decision=None
+
+# Chrome domain match — reads the visible url_bar node only
+evaluate pkg=com.android.chrome hostDetected=true blockedPkgs=3 enabled=true decision=BlockSite
+
+# No false positive — unrelated real site (address bar host NOT in blocklist)
+evaluate pkg=com.android.chrome hostDetected=true blockedPkgs=3 enabled=true decision=None
+
+# No false positive — search whose query text contains the blocked domain (host=google)
+evaluate pkg=com.android.chrome hostDetected=true blockedPkgs=3 enabled=true decision=None
+
+# Critical-system exclusions — allowlist returns None even while blocking is active
+evaluate pkg=com.android.settings hostDetected=false blockedPkgs=3 enabled=true decision=None
+evaluate pkg=com.google.android.dialer hostDetected=false blockedPkgs=3 enabled=true decision=None

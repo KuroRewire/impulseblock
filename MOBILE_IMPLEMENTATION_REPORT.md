@@ -96,6 +96,45 @@ privacy pages, reset-all. iOS adds the optional OS adult-content filter
 toggle; Android ships without INTERNET permission. No analytics, no backend,
 no accounts, no Stripe in mobile.
 
+## 5b. Android physical-device validation — 2026-07-26 (Pixel 10 Pro, Android 16)
+
+Ran on a real **Google Pixel 10 Pro, Android 16 (API 36), Chrome 150**, driven
+over ADB with screenshots + decision-log evidence under `review/mobile/android/`.
+Full annotated checklist: [PHYSICAL_TEST_ANDROID.md](docs/mobile/PHYSICAL_TEST_ANDROID.md).
+
+**Confirmed on device (PASS):** onboarding disclosure + consent gate; service
+enable → bind → Home reflects "on" (ON_RESUME refresh); app blocking (YouTube
+→ calm overlay with exact copy, underlying app dimmed & non-interactive);
+"Not now" → launcher; "Continue intentionally" → 5/15-min chooser; 5-minute
+allowance makes the app usable and the **full interval is honored**; re-block
+after expiry; Chrome domain block (`example.com` → `BlockSite`, reading Chrome
+150's `url_bar`); **no false positives** (wikipedia.org and a Google search
+containing "example.com" both `None`); **critical-system exclusions** — Settings,
+Dialer and launcher all `None` and remain reachable (device package names
+resolved live, all match the allowlist); force-stop/reinstall resilience;
+master toggle; empty selection. On-device DataStore inspection shows **only**
+user-configured packages/domains + a temp-allowance timestamp — **no visited
+URLs or browsing history** (none of the test-browsed sites were stored).
+
+**Defects found and fixed this run:**
+1. *Restart-while-foreground re-block gap* — after the service process
+   restarted while a blocked app was already foreground (e.g. allowance expired
+   during the restart), it waited for the next navigation to re-block. Fixed by
+   seeding the foreground package from `rootInActiveWindow` on service connect
+   (`seedForegroundPackage()`); verified by a seed-driven `evaluate` with no
+   preceding window event.
+2. *Verbose service logging* — gated all diagnostic logs behind
+   `BuildConfig.DEBUG` (release builds are silent); logs never contained URLs
+   or hostnames.
+3. *CJK IME composition* — domain field switched to `KeyboardType.Uri`;
+   remaining behavior documented in KNOWN_LIMITATIONS.md (input-side, cosmetic).
+
+**Not verified this run (time/hardware):** full device reboot; 15-minute
+wall-clock expiry; notification/deep-link app entry; incognito/custom-tabs/
+redirect/tab-switch Chrome cases; positive in-browser subdomain visit;
+emergency dialer (deliberately not exercised). All are listed in
+PHYSICAL_TEST_ANDROID.md with markers.
+
 ## 6. Not verified yet (requires hardware / human steps — no false claims)
 
 - **All Screen Time enforcement on iOS** (simulator can't enforce):

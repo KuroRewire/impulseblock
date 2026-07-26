@@ -4,7 +4,9 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
+import com.impulseblock.mobile.BuildConfig
 import android.view.accessibility.AccessibilityNodeInfo
 import com.impulseblock.mobile.data.BlockStateRepository
 import com.impulseblock.mobile.domain.BlockDecision
@@ -47,7 +49,18 @@ class ImpulseBlockAccessibilityService : AccessibilityService() {
     private val reevaluateRunnable = Runnable { evaluate() }
 
     companion object {
+        private const val TAG = "ImpulseBlockSvc"
         private const val URL_CHECK_THROTTLE_MS = 250L
+
+        /**
+         * Debug-only trace. Never logs URLs, hostnames, or page content —
+         * only package names and coarse booleans — and is compiled out of
+         * release builds. Keeps enforcement debuggable without touching the
+         * privacy guarantee (no browsing data is logged or persisted).
+         */
+        private fun trace(message: () -> String) {
+            if (BuildConfig.DEBUG) Log.d(TAG, message())
+        }
 
         /** Exposed so the app UI can show accurate permission health. */
         @Volatile
@@ -66,8 +79,27 @@ class ImpulseBlockAccessibilityService : AccessibilityService() {
             repository.state.collect { state ->
                 currentState = state
                 scheduleExpiryReevaluation(state)
+                // Seed the foreground package from the active window so a
+                // freshly (re)started service re-blocks whatever is already on
+                // screen, without waiting for the next window-state event.
+                // This closes the gap where an allowance expires (or the
+                // process is recreated) while a blocked app is already open.
+                if (currentPackage == null) seedForegroundPackage()
                 evaluate()
             }
+        }
+    }
+
+    /** Reads the current foreground package from the active window, if any. */
+    private fun seedForegroundPackage() {
+        val pkg = try {
+            rootInActiveWindow?.packageName?.toString()
+        } catch (e: Exception) {
+            null
+        }
+        if (pkg != null && pkg != packageName && !SystemAllowlist.isInputMethod(pkg)) {
+            currentPackage = pkg
+            lastDetectedHost = null
         }
     }
 
@@ -84,6 +116,7 @@ class ImpulseBlockAccessibilityService : AccessibilityService() {
 
         when (event.eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
+                trace { "windowState pkg=$pkg" }
                 if (pkg != currentPackage) {
                     currentPackage = pkg
                     lastDetectedHost = null
@@ -115,6 +148,12 @@ class ImpulseBlockAccessibilityService : AccessibilityService() {
             nowMs = System.currentTimeMillis(),
             snapshot = state.toSnapshot(packageName, launcherPackages),
         )
+        // Coarse trace only: never logs the detected hostname or any URL.
+        trace {
+            "evaluate pkg=$pkg hostDetected=${host != null} " +
+                "blockedPkgs=${state.blockedPackages.size} enabled=${state.enabled} " +
+                "decision=${decision::class.simpleName}"
+        }
 
         when (decision) {
             is BlockDecision.Decision.None -> overlay?.hide()

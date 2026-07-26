@@ -63,7 +63,24 @@
   with a fix shortcut.
 - **Temporary-access re-block** happens via the service's scheduled
   re-evaluation and on the next accessibility event; if the service was dead
-  at expiry, re-block occurs as soon as it is running again.
+  at expiry, re-block occurs as soon as it is running again. As of the
+  2026-07-26 physical run, the service also **seeds the current foreground app
+  on connect** (`seedForegroundPackage()`), so a restart while a blocked app
+  is already open re-blocks immediately rather than waiting for the next
+  navigation.
+
+- **CJK IME composition in text fields (cosmetic, input-side).** On a
+  Japanese-locale device with Gboard in kana-input mode, characters typed into
+  the "add domain" / "search apps" fields are romaji-composed to kana until
+  committed (e.g. "example.com" shows as `えぁmpぇ` while composing). The app
+  faithfully normalizes whatever is finally committed — if kana is committed it
+  is punycode-encoded (correct IDN behavior), which is not what the user
+  intended. Mitigations shipped: the domain field uses `KeyboardType.Uri` to
+  bias Gboard toward ASCII, and the visible commit reflects exactly what will
+  be stored. A user simply commits the ASCII candidate (Gboard offers
+  "example.com" as the top suggestion) or switches to English input. This is a
+  device-input ergonomics limitation, not an enforcement bug; observed only via
+  ADB text injection, which bypasses the field's keyboard-type hint.
 
 ## Optional local VPN DNS filter — evaluated, intentionally not shipped
 

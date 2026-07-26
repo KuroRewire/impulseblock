@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -47,6 +48,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import java.text.DateFormat
@@ -379,6 +382,13 @@ fun WebsitesScreen(viewModel: MainViewModel, modifier: Modifier = Modifier) {
                     label = { Text("e.g. youtube.com") },
                     modifier = Modifier.weight(1f),
                     singleLine = true,
+                    // URI keyboard: keeps CJK IMEs in ASCII mode so domains
+                    // aren't run through kana/hanzi composition (found on a
+                    // Japanese-locale Pixel during physical validation).
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Uri,
+                        imeAction = ImeAction.Done,
+                    ),
                 )
                 Spacer(Modifier.size(8.dp))
                 Button(onClick = {
