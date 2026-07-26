@@ -5,3 +5,17 @@ blocked.html.f0-backup
 *.bak
 handoffs/
 IMPULSEBLOCK_MASTER.md
+
+# Mobile — iOS
+mobile/ios/Config/Local.xcconfig
+mobile/ios/build/
+mobile/ios/DerivedData/
+mobile/ios/*.xcodeproj/xcuserdata/
+mobile/ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Mobile — Android
+mobile/android/.gradle/
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/local.properties
+mobile/android/.kotlin/

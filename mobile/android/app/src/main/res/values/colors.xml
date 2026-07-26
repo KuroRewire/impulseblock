@@ -1,0 +1,8 @@
+<resources>
+    <color name="indigo">#5957D6</color>
+    <color name="indigo_deep">#1A184D</color>
+    <color name="overlay_background">#F21A184D</color>
+    <color name="overlay_text">#FFFFFF</color>
+    <color name="overlay_text_dim">#BFC2FF</color>
+    <color name="overlay_button_secondary">#332F7A</color>
+</resources>

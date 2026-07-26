@@ -1,0 +1,9 @@
+// Copy this file to Config/Local.xcconfig (gitignored) and fill in your values.
+// Local.xcconfig is included at the end of Shared.xcconfig, so anything you
+// set here overrides the committed defaults.
+
+// Your reverse-DNS prefix, e.g. com.yourcompany
+IMPULSE_BUNDLE_PREFIX = com.yourcompany
+
+// Your Apple Developer Team ID (Xcode → Settings → Accounts).
+DEVELOPMENT_TEAM = ABCDE12345

@@ -1,0 +1,17 @@
+// ImpulseBlock iOS — shared build configuration.
+// Do NOT put personal identifiers here; override them in Config/Local.xcconfig
+// (gitignored — copy Config/Local.xcconfig.example to start).
+
+// Reverse-DNS prefix for all bundle identifiers.
+IMPULSE_BUNDLE_PREFIX = com.example
+
+// App Group shared by the app and all extensions.
+IMPULSE_APP_GROUP = group.$(IMPULSE_BUNDLE_PREFIX).impulseblock
+
+// Apple Developer Team ID (empty = manual/local builds without signing).
+DEVELOPMENT_TEAM =
+
+IPHONEOS_DEPLOYMENT_TARGET = 16.0
+SWIFT_VERSION = 5.9
+
+#include? "Local.xcconfig"

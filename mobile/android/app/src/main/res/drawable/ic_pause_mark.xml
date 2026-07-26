@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Enso-style ring with two pause bars — matches the extension's icon mark. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="88dp"
+    android:height="88dp"
+    android:viewportWidth="88"
+    android:viewportHeight="88">
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M44,8 A36,36 0 1,1 43.9,8"
+        android:strokeColor="#BFC2FF"
+        android:strokeLineCap="round"
+        android:strokeWidth="5" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M35,30 h6 v28 h-6 z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M47,30 h6 v28 h-6 z" />
+</vector>

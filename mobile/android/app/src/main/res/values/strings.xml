@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">ImpulseBlock</string>
+
+    <string name="accessibility_service_label">ImpulseBlock pause service</string>
+    <string name="accessibility_service_description">ImpulseBlock uses this service to notice when an app or website you chose to pause is opened, and to show a calm pause screen over it. In Chrome it reads only the visible address-bar text to match the domains you configured. Everything is processed on this device: ImpulseBlock stores no browsing history, has no internet permission, and uploads nothing.</string>
+
+    <!-- Overlay (pause screen) -->
+    <string name="overlay_headline">Pause before the click.</string>
+    <string name="overlay_supporting">Take one breath. The urge passes either way.</string>
+    <string name="overlay_not_now">Not now</string>
+    <string name="overlay_continue">Continue intentionally</string>
+    <string name="overlay_allow_5">5 minutes</string>
+    <string name="overlay_allow_15">15 minutes</string>
+    <string name="overlay_mark_description">ImpulseBlock pause mark</string>
+</resources>

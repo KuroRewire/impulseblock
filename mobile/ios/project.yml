@@ -1,0 +1,120 @@
+# ImpulseBlock iOS — XcodeGen project definition.
+# Regenerate the .xcodeproj with:  xcodegen generate  (run in mobile/ios)
+name: ImpulseBlock
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+configFiles:
+  Debug: Config/Shared.xcconfig
+  Release: Config/Shared.xcconfig
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    CODE_SIGN_STYLE: Automatic
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 1.0.0
+
+targets:
+  ImpulseBlock:
+    type: application
+    platform: iOS
+    sources:
+      - path: ImpulseBlock
+        excludes: ["Info.plist"]
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(IMPULSE_BUNDLE_PREFIX).impulseblock
+        CODE_SIGN_ENTITLEMENTS: ImpulseBlock/ImpulseBlock.entitlements
+        INFOPLIST_FILE: ImpulseBlock/Info.plist
+        GENERATE_INFOPLIST_FILE: false
+    dependencies:
+      - target: ShieldConfigurationExtension
+      - target: ShieldActionExtension
+      - target: DeviceActivityMonitorExtension
+      - sdk: FamilyControls.framework
+      - sdk: ManagedSettings.framework
+      - sdk: DeviceActivity.framework
+
+  ShieldConfigurationExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ShieldConfigurationExtension
+        excludes: ["Info.plist"]
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(IMPULSE_BUNDLE_PREFIX).impulseblock.shieldconfig
+        CODE_SIGN_ENTITLEMENTS: ShieldConfigurationExtension/ShieldConfigurationExtension.entitlements
+        INFOPLIST_FILE: ShieldConfigurationExtension/Info.plist
+        GENERATE_INFOPLIST_FILE: false
+    dependencies:
+      - sdk: FamilyControls.framework
+      - sdk: ManagedSettings.framework
+      - sdk: ManagedSettingsUI.framework
+
+  ShieldActionExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ShieldActionExtension
+        excludes: ["Info.plist"]
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(IMPULSE_BUNDLE_PREFIX).impulseblock.shieldaction
+        CODE_SIGN_ENTITLEMENTS: ShieldActionExtension/ShieldActionExtension.entitlements
+        INFOPLIST_FILE: ShieldActionExtension/Info.plist
+        GENERATE_INFOPLIST_FILE: false
+    dependencies:
+      - sdk: FamilyControls.framework
+      - sdk: ManagedSettings.framework
+
+  DeviceActivityMonitorExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: DeviceActivityMonitorExtension
+        excludes: ["Info.plist"]
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(IMPULSE_BUNDLE_PREFIX).impulseblock.activitymonitor
+        CODE_SIGN_ENTITLEMENTS: DeviceActivityMonitorExtension/DeviceActivityMonitorExtension.entitlements
+        INFOPLIST_FILE: DeviceActivityMonitorExtension/Info.plist
+        GENERATE_INFOPLIST_FILE: false
+    dependencies:
+      - sdk: FamilyControls.framework
+      - sdk: ManagedSettings.framework
+      - sdk: DeviceActivity.framework
+
+  ImpulseBlockTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: ImpulseBlock
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(IMPULSE_BUNDLE_PREFIX).impulseblock.tests
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/ImpulseBlock.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ImpulseBlock"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+schemes:
+  ImpulseBlock:
+    build:
+      targets:
+        ImpulseBlock: all
+    test:
+      targets:
+        - ImpulseBlockTests
+    run:
+      config: Debug

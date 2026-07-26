@@ -56,6 +56,22 @@ Repository: https://github.com/KuroRewire/impulseblock
 
 ---
 
+## Mobile apps (iOS & Android)
+
+Native mobile versions live in [`mobile/`](mobile/README.md): SwiftUI +
+Screen Time (FamilyControls/ManagedSettings) on iOS, Kotlin + Jetpack Compose +
+AccessibilityService on Android. They block chosen apps (Instagram, TikTok,
+YouTube, …) and websites in Chrome with the same calm pause — and the same
+privacy contract (local-only, no account, no browsing-history collection; the
+Android app ships without the INTERNET permission). Website lists import/export
+as JSON compatible with this extension's `blockedHosts` format.
+
+Start at [mobile/README.md](mobile/README.md) ·
+[docs/mobile/TECH_DECISION.md](docs/mobile/TECH_DECISION.md) ·
+[MOBILE_IMPLEMENTATION_REPORT.md](MOBILE_IMPLEMENTATION_REPORT.md)
+
+---
+
 ## Technical note (permissions)
 
 The extension currently uses `host_permissions: ["<all_urls>"]` for the MVP. The goal is to move to a more minimal setup later (e.g. declarativeNetRequest or host-only permissions). Block logic is centralized in `block-core.js` so the implementation can be swapped without changing the rest of the extension.
