@@ -65,6 +65,12 @@ enum DomainNormalizer {
 
         if s.isEmpty { return .failure(.empty) }
 
+        // Any remaining whitespace means this was a phrase / search query, not a
+        // hostname. Reject as malformed before the label checks so a space-
+        // containing single token isn't misread as a local-style name. Mirrors
+        // the Android DomainNormalizer.
+        if s.contains(where: { $0.isWhitespace }) { return .failure(.malformed) }
+
         // IDNA conversion (no-op for pure-ASCII hosts).
         guard let ascii = Punycode.toASCII(s) else { return .failure(.malformed) }
         s = ascii

@@ -4,15 +4,18 @@ Everything below requires accounts, approvals, or physical hardware that
 cannot be automated from this repository. Nothing here has been done
 automatically — each item is pending until you complete it.
 
-## 0. This machine (blockers found during the automated run)
+## 0. This machine — toolchain status
 
-1. **Install Xcode** (App Store), then:
-   `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
-   Verify with `xcodebuild -version`. Without it, iOS cannot compile here
-   (exact failure recorded in MOBILE_IMPLEMENTATION_REPORT.md).
-2. Optional: `brew install xcodegen` if you plan to edit `mobile/ios/project.yml`.
-   (OpenJDK 17 + Android SDK 35 + Gradle wrapper were installed during the run;
-   Android already builds locally.)
+1. ✅ **Xcode 26.3 is installed and selected** (`xcode-select -p` →
+   `/Applications/Xcode.app/Contents/Developer`). iOS now compiles and unit-tests
+   here: app + all 3 extensions build unsigned and 25/25 tests pass on the iOS
+   26.3 simulator (`review/mobile/ios/build-verification.md`). No action needed.
+2. ✅ XcodeGen 2.46.0, OpenJDK 17, Android SDK 35 + Gradle wrapper are all
+   present; both platforms build locally.
+
+The remaining items in this file are genuinely human-only — Apple/Google
+accounts, entitlements, signing, and physical-device validation — and are
+**not** satisfied by the local compile above.
 
 ## Apple
 

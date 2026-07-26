@@ -3,7 +3,9 @@
 ## Prerequisites
 
 - macOS with **Xcode 15+** installed (`xcodebuild -version` must work — the
-  Command Line Tools alone are not enough).
+  Command Line Tools alone are not enough). Compile-validated on
+  **Xcode 26.3 / Swift 6.2.4 / iOS 26.3 simulator** (2026-07-27): app + all
+  extensions build unsigned and the 25 unit tests pass.
 - Optional: `brew install xcodegen` (only if you edit `mobile/ios/project.yml`).
 - For on-device testing: an Apple Developer account (free account works for
   development; distribution needs the paid program + Family Controls

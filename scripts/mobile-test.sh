@@ -29,6 +29,18 @@ test_android() {
   ./gradlew test lint || FAILURES=$((FAILURES+1))
 }
 
+# Prints the UDID of an available iPhone simulator (any iOS runtime), or nothing.
+pick_ios_sim() {
+  xcrun simctl list devices available 2>/dev/null | awk '
+    /^-- iOS/       { ios = 1; next }
+    /^-- /          { ios = 0 }
+    ios && /iPhone/ {
+      if (match($0, /\(([0-9A-Fa-f-]{36})\)/)) {
+        print substr($0, RSTART + 1, RLENGTH - 2); exit
+      }
+    }'
+}
+
 test_ios() {
   echo "==> iOS: unit tests (requires Xcode + a simulator runtime)"
   if ! xcodebuild -version >/dev/null 2>&1; then
@@ -36,12 +48,22 @@ test_ios() {
     FAILURES=$((FAILURES+1))
     return
   fi
+  local sim_id
+  sim_id="$(pick_ios_sim)"
+  if [ -z "$sim_id" ]; then
+    echo "  ❌ SKIPPED: no available iOS Simulator found."
+    echo "     Install one via Xcode > Settings > Components, then re-run."
+    FAILURES=$((FAILURES+1))
+    return
+  fi
+  echo "  Using simulator: $sim_id"
   cd "$REPO_ROOT/mobile/ios"
+  if command -v xcodegen >/dev/null 2>&1; then xcodegen generate >/dev/null; fi
   xcodebuild test \
     -project ImpulseBlock.xcodeproj \
     -scheme ImpulseBlock \
-    -destination 'platform=iOS Simulator,name=iPhone 16' \
-    CODE_SIGNING_ALLOWED=NO \
+    -destination "platform=iOS Simulator,id=$sim_id" \
+    CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
     || FAILURES=$((FAILURES+1))
 }
 

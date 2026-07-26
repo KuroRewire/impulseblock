@@ -15,6 +15,19 @@ Backup created first: branch `backup/mobile-implementation-32cdb3b` → `32cdb3b
 | F5 | Low (privacy hardening, lint `DataExtractionRules`) | `allowBackup=false` alone does not govern Android 12+ device-to-device transfer. | Added `res/xml/data_extraction_rules.xml` excluding everything from cloud backup and device transfer, wired via `android:dataExtractionRules` + `android:fullBackupContent="false"`. Block lists now provably never leave the device by any backup path. |
 | F6 | Info (lint `ObsoleteSdkInt`) | Adaptive icon lived in `mipmap-anydpi-v26`; the `-v26` qualifier is redundant with `minSdk 26`. | Directory renamed to `mipmap-anydpi`. |
 | F7 | Info (lint `StaticFieldLeak` false positive) | Lint cannot see that the repository singleton stores only the application context. | Annotated with `@SuppressLint("StaticFieldLeak")` + explanatory comment. |
+| F8 | Medium (iOS unit-test failure, cross-platform inconsistency) | Found when iOS unit tests were first executed on the real Xcode 26.3 SDK (2026-07-27). The Swift `DomainNormalizer` lacked the whitespace-rejection guard the Kotlin one has, so an input containing spaces (e.g. `"not a domain"`) fell through to the "single-label ⇒ local-style" branch and returned `.localOrReserved` instead of `.malformed`. 1/25 iOS tests failed. | Added `if s.contains(where: { $0.isWhitespace }) { return .failure(.malformed) }` before the label checks in `mobile/ios/Shared/DomainNormalizer.swift`, mirroring the Android implementation. All 25 iOS tests pass. |
+| F9 | Info (release-log hygiene) | The one `NSLog` in `TempAccessManager` (DeviceActivity scheduling error; contained no URLs/user data) ran in all configurations. | Wrapped in `#if DEBUG` so release builds emit nothing, matching the Android `BuildConfig.DEBUG` gating. Release configuration still compiles. |
+
+### iOS compile validation — 2026-07-27 (Xcode 26.3)
+
+The whole iOS project was compiled for the first time against the real
+Xcode 26.3 / iOS SDK (Swift 6.2.4) after Xcode was installed. **Result: the
+main app and all three extensions build with zero compiler errors and zero
+first-party warnings on the first attempt** — the FamilyControls /
+ManagedSettings / ManagedSettingsUI / DeviceActivity API surface used in the
+implementation matches the shipping SDK. The only source-level defects surfaced
+were F8 (a unit-test-caught logic bug) and F9 (log hygiene). Full evidence:
+`review/mobile/ios/build-verification.md` and `review/mobile/ios/initial-build.log`.
 
 ### Lint warnings intentionally left
 

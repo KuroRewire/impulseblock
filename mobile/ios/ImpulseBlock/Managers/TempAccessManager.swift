@@ -48,8 +48,11 @@ final class TempAccessManager {
         } catch {
             // Monitoring can fail (e.g. exceeding the schedule budget). The
             // grant's expiresAt + foreground re-apply still guarantee
-            // restoration; log for debugging only.
+            // restoration. Debug-only diagnostic (no URLs / user data); compiled
+            // out of release builds.
+            #if DEBUG
             NSLog("ImpulseBlock: startMonitoring failed: \(String(describing: error))")
+            #endif
         }
     }
 

@@ -5,6 +5,17 @@ been verified on hardware yet** — check items off as you complete them.
 Prereqs: HUMAN_ONLY_STEPS.md (Apple section) done; app installed from Xcode
 on an iPhone running iOS 16+.
 
+## Build/compile status (2026-07-27, Xcode 26.3) — what is NOT on this page
+
+The iOS project **COMPILES** (main app + all 3 extensions, Debug + Release,
+unsigned simulator) and its pure unit tests are **UNIT TESTED** on the iOS 26.3
+simulator (25/25) — see `review/mobile/ios/build-verification.md`. Everything
+on *this* page is different: it is the set of behaviors that are **NOT
+PHYSICALLY TESTED** because they **REQUIRE an iPhone**, the **Family Controls
+distribution entitlement**, and **code signing**. Compiling against the SDK is
+not the same as the OS actually shielding an app — do not mark any item below
+as done from a simulator or a build log.
+
 ## A. Authorization
 
 - [ ] A1. Fresh install → onboarding explains pause philosophy, Screen Time

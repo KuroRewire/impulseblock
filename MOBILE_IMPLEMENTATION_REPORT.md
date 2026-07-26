@@ -73,8 +73,8 @@ mobile/README.md · root README mobile section
 | Android lint | ✅ **0 errors** (`abortOnError=true`); 26 warnings remain, all triaged in IMPLEMENTATION_AUDIT.md (pinned toolchain versions + intentional overlay styling) |
 | Debug APK | ✅ `mobile/android/app/build/outputs/apk/debug/app-debug.apk` — **9,737,471 bytes**, SHA-256 `f66ea6e9f11506a6727436a1e6acb0adc3fa5542b8729eb8d2a45c24ec951983` |
 | iOS project generation (`xcodegen generate`) | ✅ 5 targets, valid plists (`plutil -lint` OK) |
-| iOS compilation | ❌ **BLOCKED — Xcode not installed on this machine.** Exact output: `xcodebuild -version` → `xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance`; no `/Applications/Xcode*.app`. Sources are written against documented SDK APIs; `scripts/mobile-build.sh ios` runs the signing-disabled simulator build once Xcode is installed. |
-| iOS unit tests | ❌ blocked by the same missing Xcode (26 test cases ready in `mobile/ios/Tests/`) |
+| iOS compilation | ✅ **COMPILED on Xcode 26.3 (Swift 6.2.4), 2026-07-27.** Unsigned simulator build of the main app + all 3 extensions: **BUILD SUCCEEDED**, zero compiler errors, zero first-party warnings; Debug and Release configs both build. All three `.appex` bundles embed in `ImpulseBlock.app/PlugIns/` with correct principal classes. Evidence: `review/mobile/ios/build-verification.md`, `review/mobile/ios/initial-build.log`. Screen Time **enforcement** still needs a physical device + Apple entitlement. |
+| iOS unit tests | ✅ **25/25 pass** on the iOS 26.3 simulator (`xcodebuild … test`). One logic bug (F8, whitespace guard) was found and fixed during this run. |
 | Existing extension regression | ✅ `node --check` passes on all 9 JS files; no extension file modified (only README gained a mobile section) |
 
 Environment installed during the run: OpenJDK 17.0.20 (brew), Android
@@ -134,6 +134,46 @@ wall-clock expiry; notification/deep-link app entry; incognito/custom-tabs/
 redirect/tab-switch Chrome cases; positive in-browser subdomain visit;
 emergency dialer (deliberately not exercised). All are listed in
 PHYSICAL_TEST_ANDROID.md with markers.
+
+## 5c. iOS compile validation — 2026-07-27 (Xcode 26.3)
+
+Ran after full Xcode 26.3 (build 17C529, Swift 6.2.4) + the iOS 26.3 simulator
+runtime were installed. Branch `validation/ios-compile` from `main@c4ec43e`.
+Evidence under `review/mobile/ios/`.
+
+**COMPILED (unsigned iphonesimulator, Debug + Release):** main `ImpulseBlock`
+app and all three extensions — `ShieldConfigurationExtension`,
+`ShieldActionExtension`, `DeviceActivityMonitorExtension` — **BUILD SUCCEEDED**
+with zero compiler errors and zero first-party warnings on the first attempt.
+The FamilyControls / ManagedSettings / ManagedSettingsUI / DeviceActivity API
+surface used in the code matches the shipping Xcode 26.3 SDK. All three
+`.appex` bundles embed under `ImpulseBlock.app/PlugIns/` with correct
+`NSExtensionPointIdentifier` + principal classes and real executables.
+
+**UNIT TESTED (iOS 26.3 simulator):** `xcodebuild … test` → **25/25 pass**
+(DomainNormalizer 10, ImportExport 6, Punycode 4, TemporaryAccess 5).
+
+**Defects found & fixed this run:**
+- **F8** — Swift `DomainNormalizer` was missing the whitespace guard the Kotlin
+  version has, so `"not a domain"` returned `.localOrReserved` instead of
+  `.malformed` (1 iOS test failed). Fixed to mirror Android; all 25 pass.
+- **F9** — the single `TempAccessManager` `NSLog` (a scheduling-error
+  diagnostic, no URLs) now sits behind `#if DEBUG`; release compiles clean.
+- **Script** — `scripts/mobile-test.sh ios` now auto-discovers an available
+  simulator UDID instead of the hardcoded `iPhone 16` (which doesn't exist in
+  this Xcode). `mobile-doctor.sh`, `mobile-build.sh ios`, `mobile-test.sh ios`
+  all pass.
+
+**Privacy/release re-checked:** no analytics/network/third-party SDKs, no
+`URLSession`, no hardcoded Team ID (empty in `Shared.xcconfig`; placeholder
+only in `Local.xcconfig.example`), no committed provisioning profiles/certs,
+`Config/Local.xcconfig` gitignored and untracked, JSON export carries only
+portable settings (never opaque Screen Time tokens).
+
+**NOT verified (REQUIRES iPhone + Apple entitlement + signing):** Family
+Controls authorization, `FamilyActivityPicker`, ManagedSettings app/web
+shielding, custom shield UI, ShieldAction responses, DeviceActivity re-shield.
+These **compile** against the real SDK but cannot execute in the simulator.
 
 ## 6. Not verified yet (requires hardware / human steps — no false claims)
 

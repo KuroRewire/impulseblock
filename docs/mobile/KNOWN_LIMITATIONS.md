@@ -7,10 +7,13 @@
 - **Import/export never includes iOS app selections** — Apple's opaque tokens
   cannot be exported meaningfully. Portable settings = domains + toggles
   (+ Android package names).
-- **Not compiled-verified cross-platform in one environment**: iOS was written
-  against documented SDK APIs but could not be compiled in this environment
-  (no Xcode installed — see MOBILE_IMPLEMENTATION_REPORT.md for the exact
-  command output). First `xcodebuild` run may surface signature-level fixes.
+- **iOS is compiled-verified** as of 2026-07-27 on **Xcode 26.3 (Swift 6.2.4)**:
+  the main app and all three extensions build (Debug + Release, unsigned
+  simulator) with zero errors, and the 25 pure unit tests pass on the iOS 26.3
+  simulator (`review/mobile/ios/build-verification.md`). What remains unverified
+  is **runtime enforcement**, which needs a physical iPhone + the Family
+  Controls entitlement (below) — compiling against the SDK does not exercise the
+  OS shielding behavior.
 
 ## iOS
 
