@@ -1,5 +1,6 @@
 {
-  "extName": { "message": "ImpulseBlock" },
+  "extName": { "message": "ImpulseBlock – Website Blocker" },
+  "extShortName": { "message": "ImpulseBlock" },
   "extDescription": { "message": "Pause before distracting sites, track overrides, and regain control — privately, on-device." },
   "blocked_title": { "message": "This site is blocked" },
   "blocked_currently": { "message": "Currently blocking:" },

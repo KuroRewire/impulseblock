@@ -1,5 +1,6 @@
 {
-  "extName": { "message": "ImpulseBlock" },
+  "extName": { "message": "ImpulseBlock – Website Blocker" },
+  "extShortName": { "message": "ImpulseBlock" },
   "extDescription": { "message": "気が散るサイトの前で立ち止まり、自分の衝動パターンを記録する。すべて端末内で完結。" },
   "blocked_title": { "message": "このサイトはブロックされています" },
   "blocked_currently": { "message": "現在ブロック中:" },
